@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Status Sóbrio - Quiz de Sobriedade</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
@@ -44,15 +45,24 @@
     <div id="app"></div>
 
     <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // Estado da aplicação
         let state = {
-            screen: 'welcome', // welcome, quiz, plan, dashboard
+            screen: 'auth', // auth, emailConfirm, quiz, plan, dashboard
+            authMode: 'signup', // signup, login
             currentModule: 0,
             currentQuestion: 0,
             answers: {},
+            user: null,
             userName: '',
             soberDate: null,
-            isPremium: false
+            isPremium: false,
+            loading: false,
+            error: null
         };
 
         // Dados do quiz
@@ -290,6 +300,38 @@
             }
         ];
 
+        // Verificar sessão ao carregar
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                state.user = session.user;
+                // Verificar se e-mail foi confirmado
+                if (session.user.email_confirmed_at) {
+                    await loadUserData();
+                    state.screen = 'dashboard';
+                } else {
+                    state.screen = 'emailConfirm';
+                }
+            }
+            render();
+        }
+
+        // Carregar dados do usuário
+        async function loadUserData() {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', state.user.id)
+                .single();
+
+            if (data) {
+                state.userName = data.name || '';
+                state.soberDate = data.sober_date;
+                state.isPremium = data.is_premium || false;
+                state.answers = data.quiz_answers || {};
+            }
+        }
+
         // Funções auxiliares
         function getTotalQuestions() {
             return quizModules.reduce((acc, module) => acc + module.questions.length, 0);
@@ -314,24 +356,144 @@
             return Math.floor(diff / (1000 * 60 * 60 * 24));
         }
 
-        // Handlers
-        function handleStart() {
-            const nameInput = document.getElementById('userName');
-            if (nameInput.value.trim()) {
-                state.userName = nameInput.value.trim();
-                state.screen = 'quiz';
-                state.soberDate = new Date().toISOString();
+        // Handlers de autenticação
+        async function handleSignUp() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value;
+
+            if (!email || !password || !name) {
+                state.error = 'Preencha todos os campos';
                 render();
-            } else {
-                alert('Por favor, digite seu nome');
+                return;
             }
+
+            state.loading = true;
+            state.error = null;
+            render();
+
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        name: name
+                    }
+                }
+            });
+
+            state.loading = false;
+
+            if (error) {
+                state.error = error.message;
+                render();
+                return;
+            }
+
+            // Criar registro do usuário
+            await supabase.from('users').insert({
+                id: data.user.id,
+                email: email,
+                name: name,
+                sober_date: new Date().toISOString(),
+                created_at: new Date().toISOString()
+            });
+
+            state.user = data.user;
+            state.userName = name;
+            state.screen = 'emailConfirm';
+            render();
         }
 
-        function handleAnswer(answer) {
+        async function handleLogin() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            if (!email || !password) {
+                state.error = 'Preencha todos os campos';
+                render();
+                return;
+            }
+
+            state.loading = true;
+            state.error = null;
+            render();
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            state.loading = false;
+
+            if (error) {
+                state.error = error.message;
+                render();
+                return;
+            }
+
+            state.user = data.user;
+            
+            if (!data.user.email_confirmed_at) {
+                state.screen = 'emailConfirm';
+            } else {
+                await loadUserData();
+                state.screen = state.answers && Object.keys(state.answers).length > 0 ? 'dashboard' : 'quiz';
+            }
+            
+            render();
+        }
+
+        async function handleResendEmail() {
+            state.loading = true;
+            render();
+
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email: state.user.email
+            });
+
+            state.loading = false;
+
+            if (error) {
+                state.error = error.message;
+            } else {
+                alert('E-mail de confirmação reenviado! Verifique sua caixa de entrada.');
+            }
+
+            render();
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            state = {
+                screen: 'auth',
+                authMode: 'signup',
+                currentModule: 0,
+                currentQuestion: 0,
+                answers: {},
+                user: null,
+                userName: '',
+                soberDate: null,
+                isPremium: false,
+                loading: false,
+                error: null
+            };
+            render();
+        }
+
+        // Handlers do quiz
+        async function handleAnswer(answer) {
             const currentModule = quizModules[state.currentModule];
             const currentQuestion = currentModule.questions[state.currentQuestion];
             
             state.answers[currentQuestion.id] = answer;
+
+            // Salvar progresso no banco
+            await supabase
+                .from('users')
+                .update({ quiz_answers: state.answers })
+                .eq('id', state.user.id);
 
             if (state.currentQuestion < currentModule.questions.length - 1) {
                 state.currentQuestion++;
@@ -355,14 +517,23 @@
             render();
         }
 
-        function handlePlanSelection(isPremium) {
+        async function handlePlanSelection(isPremium) {
             state.isPremium = isPremium;
+            
+            // Atualizar no banco
+            await supabase
+                .from('users')
+                .update({ is_premium: isPremium })
+                .eq('id', state.user.id);
+            
             state.screen = 'dashboard';
             render();
         }
 
         // Componentes de renderização
-        function renderWelcome() {
+        function renderAuth() {
+            const isSignUp = state.authMode === 'signup';
+            
             return `
                 <div class="min-h-screen flex items-center justify-center p-4">
                     <div class="max-w-md w-full space-y-8 fade-in">
@@ -374,28 +545,66 @@
                                 Status Sóbrio
                             </h1>
                             <p class="text-xl text-gray-600">
-                                Sua jornada de recuperação começa aqui
+                                ${isSignUp ? 'Comece sua jornada de recuperação' : 'Bem-vindo de volta'}
                             </p>
                         </div>
 
                         <div class="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border-0">
                             <div class="space-y-6">
+                                ${state.error ? `
+                                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                                        ${state.error}
+                                    </div>
+                                ` : ''}
+
+                                ${isSignUp ? `
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-gray-700">Nome completo</label>
+                                        <input
+                                            id="authName"
+                                            type="text"
+                                            placeholder="Digite seu nome"
+                                            class="w-full h-12 px-4 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                ` : ''}
+
                                 <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">Qual é o seu nome?</label>
+                                    <label class="text-sm font-medium text-gray-700">E-mail</label>
                                     <input
-                                        id="userName"
-                                        type="text"
-                                        placeholder="Digite seu nome"
+                                        id="authEmail"
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        class="w-full h-12 px-4 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">Senha</label>
+                                    <input
+                                        id="authPassword"
+                                        type="password"
+                                        placeholder="••••••••"
                                         class="w-full h-12 px-4 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                     />
                                 </div>
 
                                 <button
-                                    onclick="handleStart()"
-                                    class="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-lg font-semibold transition-all"
+                                    onclick="${isSignUp ? 'handleSignUp()' : 'handleLogin()'}"
+                                    ${state.loading ? 'disabled' : ''}
+                                    class="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-lg font-semibold transition-all disabled:opacity-50"
                                 >
-                                    Começar Jornada →
+                                    ${state.loading ? 'Carregando...' : (isSignUp ? 'Criar Conta →' : 'Entrar →')}
                                 </button>
+
+                                <div class="text-center">
+                                    <button
+                                        onclick="state.authMode = '${isSignUp ? 'login' : 'signup'}'; state.error = null; render();"
+                                        class="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                                    >
+                                        ${isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Cadastre-se'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -412,6 +621,80 @@
                                 <div class="text-2xl font-bold text-cyan-600">24/7</div>
                                 <div class="text-xs text-gray-600">Suporte disponível</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmailConfirm() {
+            return `
+                <div class="min-h-screen flex items-center justify-center p-4">
+                    <div class="max-w-md w-full space-y-8 fade-in">
+                        <div class="text-center space-y-4">
+                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 shadow-2xl mb-4">
+                                <span class="text-4xl">📧</span>
+                            </div>
+                            <h1 class="text-4xl font-bold text-gray-800">
+                                Confirme seu E-mail
+                            </h1>
+                            <p class="text-lg text-gray-600">
+                                Enviamos um link de confirmação para:
+                            </p>
+                            <p class="text-xl font-semibold text-emerald-600">
+                                ${state.user?.email}
+                            </p>
+                        </div>
+
+                        <div class="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border-0">
+                            <div class="space-y-6">
+                                <div class="space-y-3 text-gray-600">
+                                    <p class="flex items-start gap-3">
+                                        <span class="text-emerald-500 text-xl">✓</span>
+                                        <span>Verifique sua caixa de entrada</span>
+                                    </p>
+                                    <p class="flex items-start gap-3">
+                                        <span class="text-emerald-500 text-xl">✓</span>
+                                        <span>Clique no link de confirmação</span>
+                                    </p>
+                                    <p class="flex items-start gap-3">
+                                        <span class="text-emerald-500 text-xl">✓</span>
+                                        <span>Volte aqui e recarregue a página</span>
+                                    </p>
+                                </div>
+
+                                <hr class="border-gray-200">
+
+                                <button
+                                    onclick="handleResendEmail()"
+                                    ${state.loading ? 'disabled' : ''}
+                                    class="w-full h-12 border-2 border-emerald-500 text-emerald-600 rounded-lg hover:bg-emerald-50 font-semibold transition-all disabled:opacity-50"
+                                >
+                                    ${state.loading ? 'Enviando...' : 'Reenviar E-mail'}
+                                </button>
+
+                                <button
+                                    onclick="location.reload()"
+                                    class="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-lg font-semibold transition-all"
+                                >
+                                    Já Confirmei - Continuar
+                                </button>
+
+                                <div class="text-center">
+                                    <button
+                                        onclick="handleLogout()"
+                                        class="text-sm text-gray-500 hover:text-gray-700"
+                                    >
+                                        Sair
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                            <p class="text-sm text-blue-700 text-center">
+                                💡 Não recebeu o e-mail? Verifique a pasta de spam
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -466,6 +749,18 @@
             return `
                 <div class="min-h-screen flex items-center justify-center p-4">
                     <div class="max-w-3xl w-full space-y-6 fade-in">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-600">
+                                Olá, ${state.userName}
+                            </div>
+                            <button
+                                onclick="handleLogout()"
+                                class="text-sm text-gray-500 hover:text-gray-700"
+                            >
+                                Sair
+                            </button>
+                        </div>
+
                         <div class="text-center space-y-3">
                             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${currentModule.color} shadow-xl mb-2">
                                 <span class="text-3xl">${currentModule.icon}</span>
@@ -695,11 +990,19 @@
                                         <p class="text-emerald-100 text-sm">Olá, ${state.userName}!</p>
                                     </div>
                                 </div>
-                                ${state.isPremium ? `
-                                    <span class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full font-semibold text-sm">
-                                        👑 Premium
-                                    </span>
-                                ` : ''}
+                                <div class="flex items-center gap-3">
+                                    ${state.isPremium ? `
+                                        <span class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full font-semibold text-sm">
+                                            👑 Premium
+                                        </span>
+                                    ` : ''}
+                                    <button
+                                        onclick="handleLogout()"
+                                        class="text-sm text-white/80 hover:text-white"
+                                    >
+                                        Sair
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl text-center">
@@ -817,7 +1120,7 @@
                                                 <span class="text-emerald-600 font-semibold">${Math.max(0, 60 - soberDays)} dias restantes</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${(soberDays / 60) * 100}%"></div>
+                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${Math.min((soberDays / 60) * 100, 100)}%"></div>
                                             </div>
                                         </div>
 
@@ -827,7 +1130,7 @@
                                                 <span class="text-emerald-600 font-semibold">R$ ${Math.max(0, 2000 - moneySaved)} restantes</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${(moneySaved / 2000) * 100}%"></div>
+                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${Math.min((moneySaved / 2000) * 100, 100)}%"></div>
                                             </div>
                                         </div>
 
@@ -837,7 +1140,7 @@
                                                 <span class="text-emerald-600 font-semibold">${Math.max(0, 100 - soberDays)} dias restantes</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${(soberDays / 100) * 100}%"></div>
+                                                <div class="bg-emerald-600 h-2 rounded-full progress-bar" style="width: ${Math.min((soberDays / 100) * 100, 100)}%"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -907,8 +1210,11 @@
             const app = document.getElementById('app');
             
             switch(state.screen) {
-                case 'welcome':
-                    app.innerHTML = renderWelcome();
+                case 'auth':
+                    app.innerHTML = renderAuth();
+                    break;
+                case 'emailConfirm':
+                    app.innerHTML = renderEmailConfirm();
                     break;
                 case 'quiz':
                     app.innerHTML = renderQuiz();
@@ -923,7 +1229,18 @@
         }
 
         // Inicializar aplicação
-        render();
+        checkSession();
+
+        // Listener para mudanças de autenticação
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session?.user.email_confirmed_at) {
+                state.user = session.user;
+                loadUserData().then(() => {
+                    state.screen = 'dashboard';
+                    render();
+                });
+            }
+        });
     </script>
 </body>
 </html>
