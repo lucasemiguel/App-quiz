@@ -31,8 +31,8 @@
 
             <div id="otp-form" class="hidden text-center">
                 <h2 class="text-2xl font-bold text-slate-800 mb-2">Verifique seu E-mail</h2>
-                <p class="text-slate-500 text-sm mb-6 text-xs">Digite os 6 números enviados para o seu e-mail.</p>
-                <input type="text" id="otp-code" placeholder="000000" maxlength="6" class="w-full p-3 border rounded-lg text-center text-2xl tracking-[0.5em] font-bold mb-4 outline-none focus:ring-2 focus:ring-emerald-500">
+                <p class="text-slate-500 text-sm mb-6 text-xs">Digite os 8 números enviados para o seu e-mail.</p>
+                <input type="text" id="otp-code" placeholder="00000000" maxlength="8" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border rounded-lg text-center text-2xl tracking-[0.3em] font-bold mb-4 outline-none focus:ring-2 focus:ring-emerald-500">
                 <button id="verify-btn" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 mb-4 transition">Confirmar Código</button>
                 <button id="resend-btn" class="text-emerald-600 text-sm hover:underline block mx-auto">Não recebeu? Reenviar código</button>
             </div>
@@ -46,35 +46,30 @@
     </div>
 
     <div id="main-content" class="hidden max-w-4xl mx-auto p-6 text-center">
-        <h1 class="text-3xl font-bold text-emerald-600 mb-4 italic">Status Sóbrio</h1>
+        <h1 class="text-3xl font-bold text-emerald-600 mb-4 italic text-center">Status Sóbrio</h1>
         <div class="bg-white p-10 rounded-3xl shadow-md">
             <h2 class="text-xl font-bold text-slate-800 mb-4">Acesso Confirmado! 🎉</h2>
-            <p class="text-slate-600 mb-8">O motor de login está funcionando. Agora vamos pedir para a Lasy injetar o Quiz aqui.</p>
-            <button id="signout-btn" class="bg-slate-200 px-6 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-300 transition">Sair da Conta</button>
+            <p class="text-slate-600 mb-8 font-medium">O motor de login está validado com 8 dígitos numéricos.</p>
+            <button id="signout-btn" class="bg-slate-100 px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Sair da Conta</button>
         </div>
     </div>
 
     <script>
-        // --- COLOQUE SUAS CHAVES AQUI ---
         const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
 
-        // Inicialização
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let isLoginMode = false;
 
-        // Elementos
         const msg = document.getElementById('msg');
         const emailInput = document.getElementById('email');
         const passInput = document.getElementById('password');
         const otpInput = document.getElementById('otp-code');
 
-        // Alternar visualização da senha
         document.getElementById('btn-toggle-pass').onclick = () => {
             passInput.type = passInput.type === 'password' ? 'text' : 'password';
         };
 
-        // Alternar entre Login e Cadastro
         document.getElementById('toggle-link').onclick = () => {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar' : 'Criar Conta';
@@ -83,11 +78,9 @@
             msg.innerText = "";
         };
 
-        // Ação de Cadastrar/Logar
         document.getElementById('auth-btn').onclick = async () => {
             msg.innerText = "Processando...";
             msg.className = "text-center text-blue-500 text-xs mt-4";
-            
             try {
                 if (isLoginMode) {
                     const { error } = await _supabase.auth.signInWithPassword({ 
@@ -101,11 +94,10 @@
                         password: passInput.value 
                     });
                     if (error) throw error;
-                    // Sucesso no cadastro -> Vai para tela de código
                     document.getElementById('login-form').classList.add('hidden');
                     document.getElementById('toggle-box').classList.add('hidden');
                     document.getElementById('otp-form').classList.remove('hidden');
-                    msg.innerText = "Código enviado para o e-mail!";
+                    msg.innerText = "Código de 8 dígitos enviado!";
                     msg.className = "text-center text-emerald-600 text-xs mt-4";
                 }
             } catch (e) {
@@ -114,21 +106,21 @@
             }
         };
 
-        // Verificar o Código de 6 dígitos
         document.getElementById('verify-btn').onclick = async () => {
             try {
+                msg.innerText = "Verificando código...";
                 const { error } = await _supabase.auth.verifyOtp({ 
                     email: emailInput.value, 
-                    token: otpInput.value, 
+                    token: otpInput.value.trim(), 
                     type: 'signup' 
                 });
                 if (error) throw error;
             } catch (e) {
-                alert("Erro: " + e.message);
+                msg.innerText = "Erro: " + e.message;
+                msg.className = "text-center text-red-500 text-xs mt-4";
             }
         };
 
-        // Reenviar Código
         document.getElementById('resend-btn').onclick = async () => {
             const { error } = await _supabase.auth.resend({ 
                 type: 'signup', 
@@ -137,22 +129,6 @@
             alert(error ? "Aguarde um pouco antes de reenviar." : "Novo código enviado!");
         };
 
-        // Sair
         document.getElementById('signout-btn').onclick = async () => {
             await _supabase.auth.signOut();
-            location.reload();
-        };
-
-        // Monitor de Sessão
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-            } else {
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('main-content').classList.add('hidden');
-            }
-        });
-    </script>
-</body>
-</html>
+            location.reload
