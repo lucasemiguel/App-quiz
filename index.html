@@ -1,1 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Sóbrio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
 
+    <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            
+            <div id="login-form">
+                <h2 id="auth-title" class="text-2xl font-bold text-center text-slate-800 mb-6">Criar Conta</h2>
+                <div class="space-y-4">
+                    <input type="email" id="email" placeholder="E-mail" class="w-full p-3 border rounded-lg outline-none">
+                    <div class="relative">
+                        <input type="password" id="password" placeholder="Senha" class="w-full p-3 border rounded-lg outline-none">
+                        <button type="button" onclick="togglePass()" class="absolute right-3 top-3 text-slate-400">👁️</button>
+                    </div>
+                    <button onclick="handleAuth()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 transition">Continuar</button>
+                </div>
+            </div>
+
+            <div id="otp-form" class="hidden text-center">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Verifique seu E-mail</h2>
+                <p class="text-slate-500 text-sm mb-6">Digite os 8 números enviados para você.</p>
+                <input type="text" id="otp-code" placeholder="00000000" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border rounded-lg text-center text-2xl tracking-widest font-bold mb-4 outline-none">
+                <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 mb-4">Confirmar Código</button>
+            </div>
+
+            <p id="msg" class="text-center text-xs font-medium mt-4 min-h-[1rem]"></p>
+            
+            <div id="toggle-box" class="text-center pt-4 border-t mt-4">
+                <button onclick="toggleMode()" id="toggle-link" class="text-emerald-600 text-sm">Já tem conta? Entre aqui</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden max-w-4xl mx-auto p-6 text-center">
+        <h1 class="text-3xl font-bold text-emerald-600 mb-4">Acesso Confirmado! 🎉</h1>
+        <button onclick="logout()" class="bg-slate-200 px-4 py-2 rounded-lg text-sm">Sair</button>
+    </div>
+
+    <script>
+        // --- COLOQUE SUAS CHAVES AQUI ---
+        const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
+
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let isLogin = false;
+
+        function togglePass() {
+            const p = document.getElementById('password');
+            p.type = (p.type === 'password') ? 'text' : 'password';
+        }
+
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? 'Login' : 'Criar Conta';
+            document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre aqui';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('msg');
+            msg.innerText = "Processando...";
+
+            try {
+                if (isLogin) {
+                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                } else {
+                    const { error } = await _supabase.auth.signUp({ email, password });
+                    if (error) throw error;
+                    document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('otp-form').classList.remove('hidden');
+                    msg.innerText = "Código enviado!";
+                }
+            } catch (e) {
+                msg.innerText = e.message;
+                msg.className = "text-red-500 text-center text-xs mt-2";
+            }
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('email').value;
+            const token = document.getElementById('otp-code').value;
+            const { error } = await _supabase.auth.verifyOtp({ email, token, type: 'signup' });
+            if (error) alert("Erro: " + error.message);
+        }
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            location.reload();
+        }
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
