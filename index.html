@@ -3,57 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio</title>
+    <title>Status Sóbrio - Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+<body class="bg-slate-50 min-h-screen">
 
-    <div id="app" class="w-full max-w-md p-6 bg-white rounded-xl shadow-lg">
-        <h2 class="text-xl font-bold text-center">Carregando...</h2>
+    <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <h2 id="auth-title" class="text-2xl font-bold text-center text-slate-800 mb-6">Criar Conta</h2>
+            
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Seu e-mail" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                <input type="password" id="password" placeholder="Sua senha" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                
+                <button onclick="handleAuth()" id="auth-button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                    Cadastrar e Confirmar E-mail
+                </button>
+                
+                <p id="auth-msg" class="text-center text-sm font-medium"></p>
+                
+                <div class="text-center pt-4 border-t border-slate-100">
+                    <button onclick="toggleAuthMode()" id="toggle-auth" class="text-emerald-600 hover:underline text-sm">
+                        Já tem uma conta? Faça Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden max-w-4xl mx-auto p-6">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">Status Sóbrio</h1>
+            <button onclick="signOut()" class="text-sm bg-slate-200 hover:bg-slate-300 px-4 py-2 rounded-lg">Sair</button>
+        </header>
+
+        <div id="quiz-container" class="bg-white p-8 rounded-2xl shadow-md">
+            <h2 class="text-xl font-bold mb-4">Bem-vindo ao seu Quiz de Sobriedade</h2>
+            <p class="text-slate-600 mb-6">Você está logado e pode iniciar sua avaliação.</p>
+            <button class="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold">Iniciar Quiz</button>
+        </div>
     </div>
 
     <script>
-        // 1. COLE SUAS CHAVES AQUI
+        // --- CONFIGURAÇÃO DO SUPABASE ---
+        // COLE SUAS CHAVES AQUI ABAIXO
         const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            const appDiv = document.getElementById('app');
+        let isLogin = false;
 
-            if (session) {
-                appDiv.innerHTML = `
-                    <h1 class="text-2xl font-bold text-green-600">Olá, você está logado!</h1>
-                    <p class="mt-2 text-gray-600">O quiz aparecerá aqui em breve.</p>
-                    <button onclick="supabase.auth.signOut().then(() => location.reload())" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Sair</button>
-                `;
-            } else {
-                appDiv.innerHTML = `
-                    <h1 class="text-2xl font-bold mb-4">Criar Conta</h1>
-                    <input id="email" type="email" placeholder="Seu e-mail" class="w-full p-2 border rounded mb-2">
-                    <input id="password" type="password" placeholder="Sua senha" class="w-full p-2 border rounded mb-4">
-                    <button onclick="signUp()" class="w-full bg-green-500 text-white p-2 rounded">Cadastrar e Confirmar E-mail</button>
-                    <p id="msg" class="mt-2 text-sm text-blue-600"></p>
-                `;
-            }
+        function toggleAuthMode() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? 'Fazer Login' : 'Criar Conta';
+            document.getElementById('auth-button').innerText = isLogin ? 'Entrar' : 'Cadastrar e Confirmar E-mail';
+            document.getElementById('toggle-auth').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem uma conta? Faça Login';
         }
 
-        async function signUp() {
+        async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signUp({ email, password });
-            
-            if (error) {
-                document.getElementById('msg').innerText = "Erro: " + error.message;
+            const msg = document.getElementById('auth-msg');
+            msg.innerText = "Processando...";
+
+            if (isLogin) {
+                const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) msg.className = "text-red-500 text-center"; msg.innerText = error.message;
             } else {
-                document.getElementById('msg').innerText = "Sucesso! Verifique seu e-mail para confirmar.";
+                const { error } = await _supabase.auth.signUp({ email, password });
+                if (error) {
+                    msg.className = "text-red-500 text-center";
+                    msg.innerText = error.message;
+                } else {
+                    msg.className = "text-blue-600 text-center";
+                    msg.innerText = "Sucesso! Verifique seu e-mail para confirmar a conta.";
+                }
             }
         }
 
-        checkSession();
+        async function signOut() {
+            await _supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        // VERIFICAR SE JÁ ESTÁ LOGADO
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
