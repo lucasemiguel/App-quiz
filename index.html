@@ -10,6 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .hidden { display: none; }
+        button:disabled { cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -18,35 +19,45 @@
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
             
             <div id="login-form">
-                <h2 id="auth-title" class="text-2xl font-bold text-center text-slate-800 mb-6">Criar Conta</h2>
+                <h2 id="auth-title" class="text-2xl font-bold text-center text-slate-800 mb-6 text-emerald-600">Acesse sua Conta</h2>
                 <div class="space-y-4">
-                    <input type="email" id="email" placeholder="E-mail" class="w-full p-3 border rounded-lg outline-none">
+                    <input type="email" id="email" placeholder="Seu e-mail" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
                     <div class="relative">
-                        <input type="password" id="password" placeholder="Senha" class="w-full p-3 border rounded-lg outline-none">
+                        <input type="password" id="password" placeholder="Sua senha" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
                         <button type="button" onclick="togglePass()" class="absolute right-3 top-3 text-slate-400">👁️</button>
                     </div>
-                    <button onclick="handleAuth()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 transition">Continuar</button>
+                    <button onclick="handleAuth()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 transition shadow-md">Continuar</button>
                 </div>
             </div>
 
             <div id="otp-form" class="hidden text-center">
-                <h2 class="text-2xl font-bold text-slate-800 mb-2">Verifique seu E-mail</h2>
-                <p class="text-slate-500 text-sm mb-6">Digite os 8 números enviados para você.</p>
-                <input type="text" id="otp-code" placeholder="00000000" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border rounded-lg text-center text-2xl tracking-widest font-bold mb-4 outline-none">
-                <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 mb-4">Confirmar Código</button>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Confirme o E-mail</h2>
+                <p class="text-slate-500 text-sm mb-6">Enviamos o código para o seu e-mail.</p>
+                
+                <input type="text" id="otp-code" placeholder="00000000" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border rounded-lg text-center text-2xl tracking-[0.2em] font-bold mb-4 outline-none focus:ring-2 focus:ring-emerald-500">
+                
+                <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 mb-4 transition">Verificar Código</button>
+                
+                <button id="resend-btn" onclick="resendOTP()" class="text-emerald-600 text-sm font-semibold hover:underline block mx-auto">
+                    Não recebeu? Reenviar código
+                </button>
             </div>
 
             <p id="msg" class="text-center text-xs font-medium mt-4 min-h-[1rem]"></p>
             
             <div id="toggle-box" class="text-center pt-4 border-t mt-4">
-                <button onclick="toggleMode()" id="toggle-link" class="text-emerald-600 text-sm">Já tem conta? Entre aqui</button>
+                <button onclick="toggleMode()" id="toggle-link" class="text-emerald-600 text-sm font-semibold">Já tem conta? Entre aqui</button>
             </div>
         </div>
     </div>
 
     <div id="main-content" class="hidden max-w-4xl mx-auto p-6 text-center">
-        <h1 class="text-3xl font-bold text-emerald-600 mb-4">Acesso Confirmado! 🎉</h1>
-        <button onclick="logout()" class="bg-slate-200 px-4 py-2 rounded-lg text-sm">Sair</button>
+        <h1 class="text-3xl font-bold text-emerald-600 mb-4 italic">Status Sóbrio</h1>
+        <div class="bg-white p-10 rounded-3xl shadow-md border border-slate-100">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 text-emerald-600">Acesso Confirmado! 🎉</h2>
+            <p class="text-slate-600 mb-8 font-medium">Cronômetro de 1 minuto ativado no reenvio.</p>
+            <button onclick="logout()" class="bg-slate-100 px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Sair da Conta</button>
+        </div>
     </div>
 
     <script>
@@ -56,6 +67,7 @@
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let isLogin = false;
+        let countdownTimer;
 
         function togglePass() {
             const p = document.getElementById('password');
@@ -66,13 +78,22 @@
             isLogin = !isLogin;
             document.getElementById('auth-title').innerText = isLogin ? 'Login' : 'Criar Conta';
             document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre aqui';
+            document.getElementById('msg').innerText = "";
         }
 
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const msg = document.getElementById('msg');
+            
+            if(!email || !password) {
+                msg.innerText = "Preencha e-mail e senha.";
+                msg.className = "text-red-500 text-center text-xs mt-2";
+                return;
+            }
+
             msg.innerText = "Processando...";
+            msg.className = "text-blue-500 text-center text-xs mt-2";
 
             try {
                 if (isLogin) {
@@ -82,33 +103,11 @@
                     const { error } = await _supabase.auth.signUp({ email, password });
                     if (error) throw error;
                     document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('toggle-box').classList.add('hidden');
                     document.getElementById('otp-form').classList.remove('hidden');
-                    msg.innerText = "Código enviado!";
+                    msg.innerText = "Código enviado para " + email;
+                    msg.className = "text-emerald-600 text-center text-xs mt-2";
+                    startResendTimer(); // Inicia o tempo na primeira vez
                 }
             } catch (e) {
-                msg.innerText = e.message;
-                msg.className = "text-red-500 text-center text-xs mt-2";
-            }
-        }
-
-        async function verifyOTP() {
-            const email = document.getElementById('email').value;
-            const token = document.getElementById('otp-code').value;
-            const { error } = await _supabase.auth.verifyOtp({ email, token, type: 'signup' });
-            if (error) alert("Erro: " + error.message);
-        }
-
-        async function logout() {
-            await _supabase.auth.signOut();
-            location.reload();
-        }
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-            }
-        });
-    </script>
-</body>
-</html>
+                msg.innerText = e
