@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio - Quiz</title>
+    <title>Status Sóbrio - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -20,16 +20,26 @@
             
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="Seu e-mail" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
-                <input type="password" id="password" placeholder="Sua senha" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                
+                <div class="relative">
+                    <input type="password" id="password" placeholder="Sua senha" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                        👁️
+                    </button>
+                </div>
                 
                 <button onclick="handleAuth()" id="auth-button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     Cadastrar e Confirmar E-mail
                 </button>
+
+                <button id="resend-btn" onclick="resendEmail()" class="hidden w-full text-sm text-slate-500 hover:text-emerald-600 underline mt-2">
+                    Não recebeu? Reenviar e-mail de confirmação
+                </button>
                 
-                <p id="auth-msg" class="text-center text-sm font-medium"></p>
+                <p id="auth-msg" class="text-center text-sm font-medium mt-4"></p>
                 
                 <div class="text-center pt-4 border-t border-slate-100">
-                    <button onclick="toggleAuthMode()" id="toggle-auth" class="text-emerald-600 hover:underline text-sm">
+                    <button onclick="toggleAuthMode()" id="toggle-auth" class="text-emerald-600 hover:underline text-sm font-semibold">
                         Já tem uma conta? Faça Login
                     </button>
                 </div>
@@ -42,49 +52,67 @@
             <h1 class="text-2xl font-bold text-slate-800">Status Sóbrio</h1>
             <button onclick="signOut()" class="text-sm bg-slate-200 hover:bg-slate-300 px-4 py-2 rounded-lg">Sair</button>
         </header>
-
-        <div id="quiz-container" class="bg-white p-8 rounded-2xl shadow-md">
-            <h2 class="text-xl font-bold mb-4">Bem-vindo ao seu Quiz de Sobriedade</h2>
-            <p class="text-slate-600 mb-6">Você está logado e pode iniciar sua avaliação.</p>
-            <button class="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold">Iniciar Quiz</button>
+        <div class="bg-white p-8 rounded-2xl shadow-md text-center">
+            <h2 class="text-2xl font-bold mb-4 text-emerald-600">E-mail Confirmado!</h2>
+            <p class="text-slate-600">Agora você tem acesso total ao seu Dashboard e Quiz.</p>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DO SUPABASE ---
-        // COLE SUAS CHAVES AQUI ABAIXO
-        const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
+        // --- CONFIGURAÇÃO - COLOQUE SEUS DADOS AQUI ---
+        const SUPABASE_URL = 'SUA_URL_AQUI'; 
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_AQUI';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let isLogin = false;
+
+        function togglePassword() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
 
         function toggleAuthMode() {
             isLogin = !isLogin;
             document.getElementById('auth-title').innerText = isLogin ? 'Fazer Login' : 'Criar Conta';
             document.getElementById('auth-button').innerText = isLogin ? 'Entrar' : 'Cadastrar e Confirmar E-mail';
             document.getElementById('toggle-auth').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem uma conta? Faça Login';
+            document.getElementById('resend-btn').classList.add('hidden');
         }
 
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const msg = document.getElementById('auth-msg');
-            msg.innerText = "Processando...";
+            msg.innerText = "Aguarde...";
 
             if (isLogin) {
                 const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) msg.className = "text-red-500 text-center"; msg.innerText = error.message;
+                if (error) {
+                    msg.className = "text-red-500 text-center";
+                    msg.innerText = "Erro: " + error.message;
+                }
             } else {
                 const { error } = await _supabase.auth.signUp({ email, password });
                 if (error) {
                     msg.className = "text-red-500 text-center";
                     msg.innerText = error.message;
                 } else {
-                    msg.className = "text-blue-600 text-center";
-                    msg.innerText = "Sucesso! Verifique seu e-mail para confirmar a conta.";
+                    msg.className = "text-emerald-600 text-center";
+                    msg.innerText = "Sucesso! Verifique seu e-mail para confirmar.";
+                    document.getElementById('resend-btn').classList.remove('hidden');
                 }
+            }
+        }
+
+        async function resendEmail() {
+            const email = document.getElementById('email').value;
+            const msg = document.getElementById('auth-msg');
+            const { error } = await _supabase.auth.resend({ type: 'signup', email: email });
+            
+            if (error) {
+                msg.innerText = "Aguarde um pouco antes de pedir novo e-mail.";
+            } else {
+                msg.innerText = "E-mail de confirmação reenviado!";
             }
         }
 
@@ -93,14 +121,10 @@
             window.location.reload();
         }
 
-        // VERIFICAR SE JÁ ESTÁ LOGADO
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-            } else {
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('main-content').classList.add('hidden');
             }
         });
     </script>
