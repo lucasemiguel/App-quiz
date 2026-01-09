@@ -93,7 +93,7 @@
     </div>
 
     <script>
-        // CONFIGURAÇÕES (Preencha com seus dados)
+        // CONFIGURAÇÕES - Preencha com seus dados reais
         const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
         const STRIPE_PK = 'pk_test_51SellrPYyZPASZksLelYEZ3M4rkvlfM2LsnzpLkOQMxdlRGO3tQ6YljrWJgj18koLIhLrqovhZkkrLn937hwT6iC00KvwOaK06';
@@ -103,11 +103,13 @@
         let currentQuestion = 0;
         let answers = [];
 
-        // AS 27 PERGUNTAS (Vou colocar a estrutura, você preenche os textos rápido)
+        // Estrutura do Quiz (Ainda com exemplos, até você me mandar as 27)
         const questions = Array(27).fill().map((_, i) => ({
-            text: `Pergunta ${i + 1}: Descreva o comportamento ${i + 1}?`,
+            text: `Pergunta ${i + 1}: Como você avalia seu consumo no nível ${i + 1}?`,
             options: ["Nunca", "Raramente", "Frequentemente", "Sempre"]
         }));
+
+        // --- FUNÇÕES DE INTERFACE ---
 
         function togglePass() {
             const p = document.getElementById('password');
@@ -128,11 +130,25 @@
             document.getElementById('main-auth-btn').innerText = isLogin ? 'Entrar' : 'Continuar';
         }
 
+        function showForgotPassword() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('forgot-password-section').classList.remove('hidden');
+        }
+
+        function backToLogin() {
+            document.getElementById('forgot-password-section').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+        }
+
+        // --- FUNÇÕES DE AUTENTICAÇÃO (O CORAÇÃO DO APP) ---
+
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('main-auth-btn');
             
+            if(!email || !password) return alert("Preencha todos os campos");
+
             btn.disabled = true;
             btn.innerText = "Processando...";
 
@@ -154,12 +170,33 @@
             }
         }
 
+        // NOVA FUNÇÃO DE RECUPERAR SENHA
+        async function resetPassword() {
+            const email = document.getElementById('reset-email').value;
+            const msgEl = document.getElementById('reset-msg');
+            if (!email) return alert("Digite seu e-mail");
+
+            try {
+                const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.href,
+                });
+                if (error) throw error;
+                msgEl.innerText = 'Link enviado! Verifique seu e-mail e spam.';
+                msgEl.className = "text-center text-xs mt-4 text-emerald-600 font-bold";
+            } catch (e) {
+                msgEl.innerText = "Erro: " + e.message;
+                msgEl.className = "text-center text-xs mt-4 text-red-500";
+            }
+        }
+
         async function verifyOTP() {
             const email = document.getElementById('email').value;
             const token = document.getElementById('otp-code').value;
             const { error } = await _supabase.auth.verifyOtp({ email, token, type: 'signup' });
-            if (error) alert("Código Inválido: " + error.message);
+            if (error) alert("Código inválido: " + error.message);
         }
+
+        // --- LÓGICA DO QUIZ ---
 
         function loadQuestion() {
             const q = questions[currentQuestion];
@@ -172,7 +209,7 @@
             
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('div');
-                btn.className = 'quiz-option p-4 rounded-xl font-medium';
+                btn.className = 'quiz-option p-4 rounded-xl font-medium bg-white';
                 btn.innerText = opt;
                 btn.onclick = () => {
                     answers[currentQuestion] = idx;
@@ -199,25 +236,40 @@
         async function saveAnswers() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
-                await _supabase.from('quiz_answers').insert({ 
+                await _supabase.from('quiz_answers').upsert({ 
                     user_id: user.id, 
-                    answers: answers,
-                    created_at: new Date()
+                    answers: answers 
                 });
             }
         }
 
-        async function logout() { await _supabase.auth.signOut(); location.reload(); }
+        // --- MONITORAMENTO DE SESSÃO ---
 
-        _supabase.auth.onAuthStateChange((event, session) => {
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+            // Se o usuário clicou no link de recuperação de senha
+            if (event === "PASSWORD_RECOVERY") {
+                const newPassword = prompt("Digite sua nova senha de 8 dígitos:");
+                if (newPassword) {
+                    const { error } = await _supabase.auth.updateUser({ password: newPassword });
+                    if (error) alert("Erro: " + error.message);
+                    else {
+                        alert("Senha atualizada! Faça login.");
+                        location.reload();
+                    }
+                }
+                return;
+            }
+
             if (session) {
                 document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('forgot-password-section').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
                 loadQuestion();
             }
         });
 
-        // O cronômetro de reenvio
+        async function logout() { await _supabase.auth.signOut(); location.reload(); }
+
         let timerInterval;
         function startTimer() {
             let sec = 60;
