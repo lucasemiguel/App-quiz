@@ -170,25 +170,6 @@
             }
         }
 
-        // NOVA FUNÇÃO DE RECUPERAR SENHA
-        async function resetPassword() {
-            const email = document.getElementById('reset-email').value;
-            const msgEl = document.getElementById('reset-msg');
-            if (!email) return alert("Digite seu e-mail");
-
-            try {
-                const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.href,
-                });
-                if (error) throw error;
-                msgEl.innerText = 'Link enviado! Verifique seu e-mail e spam.';
-                msgEl.className = "text-center text-xs mt-4 text-emerald-600 font-bold";
-            } catch (e) {
-                msgEl.innerText = "Erro: " + e.message;
-                msgEl.className = "text-center text-xs mt-4 text-red-500";
-            }
-        }
-
         async function verifyOTP() {
             const email = document.getElementById('email').value;
             const token = document.getElementById('otp-code').value;
@@ -243,20 +224,42 @@
             }
         }
 
-        // --- MONITORAMENTO DE SESSÃO ---
+        // 1. Função de enviar o e-mail de recuperação corrigida
+        async function resetPassword() {
+            const email = document.getElementById('reset-email').value;
+            const msgEl = document.getElementById('reset-msg');
+            if (!email) return alert("Digite seu e-mail");
 
+            try {
+                const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + window.location.pathname,
+                });
+                if (error) throw error;
+                msgEl.innerText = 'Link enviado! Verifique seu e-mail e spam.';
+                msgEl.style.color = "green";
+                msgEl.classList.remove('hidden');
+            } catch (e) {
+                msgEl.innerText = "Erro: " + e.message;
+                msgEl.style.color = "red";
+                msgEl.classList.remove('hidden');
+            }
+        }
+
+        // 2. Monitoramento de Sessão e Recuperação de Senha
         _supabase.auth.onAuthStateChange(async (event, session) => {
-            // Se o usuário clicou no link de recuperação de senha
             if (event === "PASSWORD_RECOVERY") {
-                const newPassword = prompt("Digite sua nova senha de 8 dígitos:");
-                if (newPassword) {
-                    const { error } = await _supabase.auth.updateUser({ password: newPassword });
-                    if (error) alert("Erro: " + error.message);
-                    else {
-                        alert("Senha atualizada! Faça login.");
-                        location.reload();
+                setTimeout(() => {
+                    const newPassword = prompt("Digite sua nova senha:");
+                    if (newPassword) {
+                        _supabase.auth.updateUser({ password: newPassword }).then(({ error }) => {
+                            if (error) alert("Erro: " + error.message);
+                            else {
+                                alert("Senha alterada com sucesso! Entre agora com a nova senha.");
+                                _supabase.auth.signOut().then(() => location.reload());
+                            }
+                        });
                     }
-                }
+                }, 800);
                 return;
             }
 
