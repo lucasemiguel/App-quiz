@@ -56,7 +56,7 @@
             <div id="otp-form" class="hidden text-center">
                 <div class="mb-4 text-emerald-500"><i class="fa-solid fa-envelope-circle-check text-5xl"></i></div>
                 <h2 class="text-2xl font-bold mb-2">Verifique seu E-mail</h2>
-                <p class="text-sm text-slate-500 mb-6">Enviamos um código para o seu e-mail.</p>
+                <p class="text-sm text-slate-500 mb-6">Enviamos um código de confirmação.</p>
                 <input type="text" id="otp-code" maxlength="8" placeholder="000000" class="w-full p-4 border-2 border-emerald-100 rounded-xl text-center text-3xl font-bold mb-6 tracking-widest outline-none">
                 <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold text-lg mb-4">Verificar Código</button>
                 <button id="resend-btn" onclick="resendOTP()" class="text-emerald-600 text-sm font-bold disabled:text-slate-400">Reenviar código</button>
@@ -115,7 +115,6 @@
             options: ["Muito bem", "Bem", "Instável", "Difícil"]
         }));
 
-        // --- INTERFACE ---
         function togglePass() {
             const p = document.getElementById('password');
             const icon = document.getElementById('eye-icon');
@@ -136,32 +135,69 @@
             document.getElementById('forgot-password-section').classList.remove('hidden');
         }
 
-        // --- AUTH ---
+        // LÓGICA DE AUTENTICAÇÃO INTELIGENTE PARA O CLIENTE
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('main-auth-btn');
-            if(!email || !password) return alert("Preencha tudo");
+            if(!email || !password) return alert("Preencha todos os campos.");
+            
             btn.disabled = true;
+            btn.innerText = "Processando...";
+
             try {
                 if (isLogin) {
+                    // Tenta logar direto
                     const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
+                    if (error) {
+                        if (error.message.includes("Email not confirmed")) {
+                            // Se o cliente existe mas não confirmou, envia o código novamente
+                            await _supabase.auth.resend({ type: 'signup', email });
+                            alert("Seu e-mail ainda não foi confirmado. Enviamos um novo código!");
+                            document.getElementById('login-form').classList.add('hidden');
+                            document.getElementById('otp-form').classList.remove('hidden');
+                            startTimer();
+                        } else {
+                            throw error;
+                        }
+                    }
                 } else {
-                    const { error } = await _supabase.auth.signUp({ email, password });
-                    if (error) throw error;
-                    document.getElementById('login-form').classList.add('hidden');
-                    document.getElementById('otp-form').classList.remove('hidden');
-                    startTimer();
+                    // Tenta cadastrar
+                    const { data, error } = await _supabase.auth.signUp({ email, password });
+                    
+                    // Se o usuário já existe, o Supabase retorna data mas sem sessão
+                    if (!error && data?.user?.identities?.length === 0) {
+                        alert("Este e-mail já está cadastrado. Por favor, faça login.");
+                        toggleMode(); // Muda para tela de login automaticamente
+                    } else if (error) {
+                        throw error;
+                    } else {
+                        // Cadastro novo com sucesso
+                        document.getElementById('login-form').classList.add('hidden');
+                        document.getElementById('otp-form').classList.remove('hidden');
+                        startTimer();
+                    }
                 }
-            } catch (e) { alert(e.message); btn.disabled = false; }
+            } catch (e) { 
+                alert(e.message); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = isLogin ? "Entrar" : "Continuar";
+            }
         }
 
         async function verifyOTP() {
             const email = document.getElementById('email').value;
             const token = document.getElementById('otp-code').value;
             const { error } = await _supabase.auth.verifyOtp({ email, token, type: 'signup' });
-            if (error) alert("Inválido: " + error.message);
+            if (error) alert("Código inválido ou expirado.");
+        }
+
+        async function resendOTP() {
+            const email = document.getElementById('email').value;
+            const { error } = await _supabase.auth.resend({ type: 'signup', email });
+            if (error) alert(error.message);
+            else { alert("Novo código enviado!"); startTimer(); }
         }
 
         async function resetPassword() {
@@ -171,16 +207,17 @@
                 redirectTo: window.location.origin + window.location.pathname,
             });
             msgEl.classList.remove('hidden');
-            if (error) { msgEl.innerText = error.message; msgEl.style.color = "red"; }
-            else { msgEl.innerText = "Link enviado!"; msgEl.style.color = "green"; }
+            if (error) { msgEl.innerText = "Erro: " + error.message; msgEl.style.color = "red"; }
+            else { msgEl.innerText = "Link de recuperação enviado!"; msgEl.style.color = "green"; }
         }
 
         _supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === "PASSWORD_RECOVERY" || window.location.hash.includes('type=recovery')) {
                 setTimeout(() => {
-                    const pass = prompt("Nova senha:");
+                    const pass = prompt("Digite sua nova senha:");
                     if(pass) _supabase.auth.updateUser({ password: pass }).then(() => {
-                        alert("Alterada!"); _supabase.auth.signOut().then(() => location.reload());
+                        alert("Senha alterada com sucesso!"); 
+                        _supabase.auth.signOut().then(() => location.reload());
                     });
                 }, 1000);
                 return;
@@ -192,7 +229,6 @@
             }
         });
 
-        // --- QUIZ ---
         function loadQuestion() {
             const q = questions[currentQuestion];
             document.getElementById('progress-bar').style.width = (currentQuestion / questions.length * 100) + "%";
@@ -236,6 +272,7 @@
             let sec = 60;
             const btn = document.getElementById('resend-btn');
             btn.disabled = true;
+            if(timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 sec--;
                 btn.innerText = `Reenviar em ${sec}s`;
@@ -244,7 +281,7 @@
         }
 
         async function checkout(plan) {
-            alert("Redirecionando para pagamento... (Configure seu link do Stripe aqui)");
+            alert("Redirecionando para o Stripe...");
         }
     </script>
 </body>
