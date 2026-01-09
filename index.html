@@ -20,6 +20,7 @@
 
     <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            
             <div id="login-form">
                 <h2 id="auth-title" class="text-3xl font-extrabold mb-2 text-emerald-600 text-center">Status Sóbrio</h2>
                 <p class="text-slate-500 text-center mb-8">Sua jornada começa aqui.</p>
@@ -43,11 +44,20 @@
                 </div>
             </div>
 
+            <div id="forgot-password-section" class="hidden">
+                <h2 class="text-2xl font-bold text-emerald-600 mb-2 text-center">Recuperar Senha</h2>
+                <p class="text-slate-500 text-center mb-6 text-sm">Enviaremos um link para definir sua nova senha.</p>
+                <input type="email" id="reset-email" placeholder="seu@email.com" class="w-full p-3 border rounded-lg mb-4 outline-none">
+                <button onclick="resetPassword()" class="w-full bg-slate-800 text-white p-3 rounded-xl font-bold">Enviar Link</button>
+                <div id="reset-msg" class="hidden text-center text-xs mt-4 font-bold"></div>
+                <button onclick="location.reload()" class="w-full text-center text-sm text-slate-500 mt-4 underline">Voltar ao login</button>
+            </div>
+
             <div id="otp-form" class="hidden text-center">
                 <div class="mb-4 text-emerald-500"><i class="fa-solid fa-envelope-circle-check text-5xl"></i></div>
                 <h2 class="text-2xl font-bold mb-2">Verifique seu E-mail</h2>
-                <p class="text-sm text-slate-500 mb-6">Enviamos um código de 6 ou 8 dígitos para o seu e-mail.</p>
-                <input type="text" id="otp-code" maxlength="8" placeholder="000000" class="w-full p-4 border-2 border-emerald-100 rounded-xl text-center text-3xl font-bold mb-6 tracking-widest focus:border-emerald-500 outline-none">
+                <p class="text-sm text-slate-500 mb-6">Enviamos um código para o seu e-mail.</p>
+                <input type="text" id="otp-code" maxlength="8" placeholder="000000" class="w-full p-4 border-2 border-emerald-100 rounded-xl text-center text-3xl font-bold mb-6 tracking-widest outline-none">
                 <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold text-lg mb-4">Verificar Código</button>
                 <button id="resend-btn" onclick="resendOTP()" class="text-emerald-600 text-sm font-bold disabled:text-slate-400">Reenviar código</button>
             </div>
@@ -72,55 +82,46 @@
 
             <div id="paywall-section" class="hidden text-center">
                 <h2 class="text-3xl font-extrabold mb-4">Quiz Concluído!</h2>
-                <p class="text-slate-600 mb-8">Para visualizar seu relatório detalhado e seu plano personalizado, escolha um dos acessos abaixo:</p>
-                
-                <div class="grid gap-4">
-                    <div class="bg-emerald-50 border-2 border-emerald-500 p-6 rounded-2xl relative">
-                        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Mais Popular</span>
-                        <h3 class="text-xl font-bold">Plano Mensal</h3>
-                        <p class="text-3xl font-black my-2">R$ 47,00</p>
-                        <button onclick="checkout('monthly')" class="w-full bg-emerald-500 text-white p-3 rounded-xl font-bold mt-4 shadow-lg hover:bg-emerald-600 transition">Desbloquear Agora</button>
-                    </div>
+                <p class="text-slate-600 mb-8">Para visualizar seu relatório detalhado, escolha um plano:</p>
+                <div class="bg-emerald-50 border-2 border-emerald-500 p-6 rounded-2xl relative">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Mais Popular</span>
+                    <h3 class="text-xl font-bold">Acesso Completo</h3>
+                    <p class="text-3xl font-black my-2">R$ 47,00</p>
+                    <button onclick="checkout('monthly')" class="w-full bg-emerald-500 text-white p-3 rounded-xl font-bold mt-4 shadow-lg">Desbloquear Agora</button>
                 </div>
             </div>
 
             <div id="dashboard-section" class="hidden bg-white p-8 rounded-2xl shadow-lg border border-emerald-100">
-                <h2 class="text-2xl font-bold text-emerald-600 mb-4">Seu Diagnóstico Sóbrio</h2>
-                <div id="results-container" class="prose">
-                    </div>
+                <h2 class="text-2xl font-bold text-emerald-600 mb-4">Seu Diagnóstico</h2>
+                <div id="results-container" class="prose text-slate-700"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÕES - Preencha com seus dados reais
         const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
         const STRIPE_PK = 'pk_test_51SellrPYyZPASZksLelYEZ3M4rkvlfM2LsnzpLkOQMxdlRGO3tQ6YljrWJgj18koLIhLrqovhZkkrLn937hwT6iC00KvwOaK06';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const stripe = Stripe(STRIPE_PK);
+
         let isLogin = false;
         let currentQuestion = 0;
         let answers = [];
 
-        // Estrutura do Quiz (Ainda com exemplos, até você me mandar as 27)
         const questions = Array(27).fill().map((_, i) => ({
-            text: `Pergunta ${i + 1}: Como você avalia seu consumo no nível ${i + 1}?`,
-            options: ["Nunca", "Raramente", "Frequentemente", "Sempre"]
+            text: `Pergunta ${i + 1}: Como você se sente no dia ${i + 1} sem álcool?`,
+            options: ["Muito bem", "Bem", "Instável", "Difícil"]
         }));
 
-        // --- FUNÇÕES DE INTERFACE ---
-
+        // --- INTERFACE ---
         function togglePass() {
             const p = document.getElementById('password');
             const icon = document.getElementById('eye-icon');
-            if (p.type === 'password') {
-                p.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                p.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            p.type = p.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         }
 
         function toggleMode() {
@@ -131,27 +132,17 @@
         }
 
         function showForgotPassword() {
-            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('login-form').classList.add('hidden');
             document.getElementById('forgot-password-section').classList.remove('hidden');
         }
 
-        function backToLogin() {
-            document.getElementById('forgot-password-section').classList.add('hidden');
-            document.getElementById('auth-section').classList.remove('hidden');
-        }
-
-        // --- FUNÇÕES DE AUTENTICAÇÃO (O CORAÇÃO DO APP) ---
-
+        // --- AUTH ---
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('main-auth-btn');
-            
-            if(!email || !password) return alert("Preencha todos os campos");
-
+            if(!email || !password) return alert("Preencha tudo");
             btn.disabled = true;
-            btn.innerText = "Processando...";
-
             try {
                 if (isLogin) {
                     const { error } = await _supabase.auth.signInWithPassword({ email, password });
@@ -163,31 +154,51 @@
                     document.getElementById('otp-form').classList.remove('hidden');
                     startTimer();
                 }
-            } catch (e) { 
-                alert("Erro: " + e.message);
-                btn.disabled = false;
-                btn.innerText = isLogin ? "Entrar" : "Continuar";
-            }
+            } catch (e) { alert(e.message); btn.disabled = false; }
         }
 
         async function verifyOTP() {
             const email = document.getElementById('email').value;
             const token = document.getElementById('otp-code').value;
             const { error } = await _supabase.auth.verifyOtp({ email, token, type: 'signup' });
-            if (error) alert("Código inválido: " + error.message);
+            if (error) alert("Inválido: " + error.message);
         }
 
-        // --- LÓGICA DO QUIZ ---
+        async function resetPassword() {
+            const email = document.getElementById('reset-email').value;
+            const msgEl = document.getElementById('reset-msg');
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
+            msgEl.classList.remove('hidden');
+            if (error) { msgEl.innerText = error.message; msgEl.style.color = "red"; }
+            else { msgEl.innerText = "Link enviado!"; msgEl.style.color = "green"; }
+        }
 
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === "PASSWORD_RECOVERY" || window.location.hash.includes('type=recovery')) {
+                setTimeout(() => {
+                    const pass = prompt("Nova senha:");
+                    if(pass) _supabase.auth.updateUser({ password: pass }).then(() => {
+                        alert("Alterada!"); _supabase.auth.signOut().then(() => location.reload());
+                    });
+                }, 1000);
+                return;
+            }
+            if (session) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                loadQuestion();
+            }
+        });
+
+        // --- QUIZ ---
         function loadQuestion() {
             const q = questions[currentQuestion];
-            const progress = ((currentQuestion) / questions.length) * 100;
-            document.getElementById('progress-bar').style.width = progress + "%";
+            document.getElementById('progress-bar').style.width = (currentQuestion / questions.length * 100) + "%";
             document.getElementById('question-text').innerText = q.text;
-            
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-            
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('div');
                 btn.className = 'quiz-option p-4 rounded-xl font-medium bg-white';
@@ -205,9 +216,8 @@
 
         function nextQuestion() {
             currentQuestion++;
-            if (currentQuestion < questions.length) {
-                loadQuestion();
-            } else {
+            if (currentQuestion < questions.length) loadQuestion();
+            else {
                 document.getElementById('quiz-section').classList.add('hidden');
                 document.getElementById('paywall-section').classList.remove('hidden');
                 saveAnswers();
@@ -216,60 +226,8 @@
 
         async function saveAnswers() {
             const { data: { user } } = await _supabase.auth.getUser();
-            if (user) {
-                await _supabase.from('quiz_answers').upsert({ 
-                    user_id: user.id, 
-                    answers: answers 
-                });
-            }
+            if (user) await _supabase.from('quiz_answers').upsert({ user_id: user.id, answers: answers });
         }
-
-        // 1. Função de enviar o e-mail de recuperação corrigida
-        async function resetPassword() {
-            const email = document.getElementById('reset-email').value;
-            const msgEl = document.getElementById('reset-msg');
-            if (!email) return alert("Digite seu e-mail");
-
-            try {
-                const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + window.location.pathname,
-                });
-                if (error) throw error;
-                msgEl.innerText = 'Link enviado! Verifique seu e-mail e spam.';
-                msgEl.style.color = "green";
-                msgEl.classList.remove('hidden');
-            } catch (e) {
-                msgEl.innerText = "Erro: " + e.message;
-                msgEl.style.color = "red";
-                msgEl.classList.remove('hidden');
-            }
-        }
-
-        // 2. Monitoramento de Sessão e Recuperação de Senha
-        _supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === "PASSWORD_RECOVERY") {
-                setTimeout(() => {
-                    const newPassword = prompt("Digite sua nova senha:");
-                    if (newPassword) {
-                        _supabase.auth.updateUser({ password: newPassword }).then(({ error }) => {
-                            if (error) alert("Erro: " + error.message);
-                            else {
-                                alert("Senha alterada com sucesso! Entre agora com a nova senha.");
-                                _supabase.auth.signOut().then(() => location.reload());
-                            }
-                        });
-                    }
-                }, 800);
-                return;
-            }
-
-            if (session) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('forgot-password-section').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                loadQuestion();
-            }
-        });
 
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
 
@@ -281,12 +239,12 @@
             timerInterval = setInterval(() => {
                 sec--;
                 btn.innerText = `Reenviar em ${sec}s`;
-                if(sec <= 0) {
-                    clearInterval(timerInterval);
-                    btn.innerText = "Reenviar código";
-                    btn.disabled = false;
-                }
+                if(sec <= 0) { clearInterval(timerInterval); btn.innerText = "Reenviar código"; btn.disabled = false; }
             }, 1000);
+        }
+
+        async function checkout(plan) {
+            alert("Redirecionando para pagamento... (Configure seu link do Stripe aqui)");
         }
     </script>
 </body>
