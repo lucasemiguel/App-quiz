@@ -217,7 +217,7 @@
     // O Supabase enviará o link para o e-mail contido na variável emailSolicitado
     const { error } = await _supabase.auth.resetPasswordForEmail(emailSolicitado, {
         // Isso garante que, ao clicar no e-mail, ele volte para o seu app na Vercel
-        redirectTo: 'https://app-quiz-fawn.vercel.app',
+        redirectTo: 'https://app-quiz-fawn.vercel.app/',
     });
 
     if (error) {
