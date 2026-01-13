@@ -3,80 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio | Protocolo Personalizado</title>
+    <title>Status Sóbrio | Plano de Cura Personalizado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .hidden { display: none; }
-        .quiz-option { cursor: pointer; transition: all 0.2s; border: 2px solid #e2e8f0; position: relative; }
+        .quiz-option { cursor: pointer; transition: all 0.2s; border: 2px solid #e2e8f0; }
         .quiz-option:hover { border-color: #10b981; background-color: #f0fdf4; }
         .quiz-option.selected { border-color: #10b981; background-color: #10b981; color: white; transform: scale(1.02); }
         .progress-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .plan-card { transition: all 0.3s ease; border: 2px solid transparent; }
-        .plan-card:hover { border-color: #10b981; transform: translateY(-5px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans leading-relaxed">
+<body class="bg-slate-50 text-slate-800 font-sans">
 
     <div id="auth-section" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-emerald-50 to-slate-100">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white">
             <div id="login-form">
                 <div class="text-center mb-8">
-                    <h2 id="auth-title" class="text-4xl font-black mb-2 text-emerald-600 tracking-tight">Status Sóbrio</h2>
-                    <p class="text-slate-400 font-medium">Sua nova vida começa hoje.</p>
+                    <h2 id="auth-title" class="text-4xl font-black mb-2 text-emerald-600 tracking-tight text-center">Status Sóbrio</h2>
+                    <p class="text-slate-400 font-medium">Sua nova vida começa agora.</p>
                 </div>
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1">E-mail</label>
-                        <input type="email" id="email" placeholder="seu@email.com" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition">
+                    <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                    <div class="relative">
+                        <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                        <button type="button" onclick="togglePass()" class="absolute right-4 top-4 text-slate-400"><i id="eye-icon" class="fa-solid fa-eye"></i></button>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1">Senha</label>
-                        <div class="relative">
-                            <input type="password" id="password" placeholder="••••••••" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition">
-                            <button type="button" onclick="togglePass()" class="absolute right-4 top-4 text-slate-400"><i id="eye-icon" class="fa-solid fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-5 rounded-2xl font-black text-lg shadow-xl shadow-emerald-200 transition-all active:scale-95">CONTINUAR</button>
+                    <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">CONTINUAR</button>
                 </div>
                 <div class="flex flex-col gap-3 mt-8 text-center">
-                    <button onclick="toggleMode()" id="toggle-link" class="text-sm text-emerald-600 font-bold hover:text-emerald-700">Já tem conta? Faça Login</button>
-                    <button onclick="showForgotPassword()" class="text-xs text-slate-400 font-medium hover:underline">Esqueceu sua senha?</button>
+                    <button onclick="toggleMode()" id="toggle-link" class="text-sm text-emerald-600 font-bold">Já tem conta? Faça Login</button>
                 </div>
             </div>
-            <div id="forgot-password-section" class="hidden">
-                <h2 class="text-2xl font-black text-slate-800 mb-2 text-center">Recuperar Acesso</h2>
-                <input type="email" id="reset-email" placeholder="Digite seu e-mail" class="w-full p-4 border-2 border-slate-100 rounded-2xl mb-4 outline-none focus:border-emerald-500">
-                <button onclick="resetPassword()" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold">Enviar Link</button>
-                <div id="reset-msg" class="hidden text-center text-xs mt-4 font-bold p-3 rounded-lg"></div>
-                <button onclick="location.reload()" class="w-full text-center text-sm text-slate-400 mt-6 font-bold uppercase tracking-tighter">Voltar</button>
-            </div>
             <div id="otp-form" class="hidden text-center">
-                <div class="mb-4 text-emerald-500"><i class="fa-solid fa-shield-halved text-6xl"></i></div>
-                <h2 class="text-2xl font-black mb-2 text-slate-800">Verifique seu E-mail</h2>
+                <h2 class="text-2xl font-black mb-4">Confirme seu E-mail</h2>
                 <input type="text" id="otp-code" maxlength="6" placeholder="000000" class="w-full p-5 border-4 border-emerald-50 rounded-2xl text-center text-4xl font-black mb-6 tracking-[1rem] outline-none">
-                <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-lg">VERIFICAR AGORA</button>
+                <button onclick="verifyOTP()" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black">VERIFICAR</button>
             </div>
         </div>
     </div>
 
     <div id="main-content" class="hidden min-h-screen pb-20">
         <nav class="glass sticky top-0 z-50 border-b border-slate-100 p-4 flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white"><i class="fa-solid fa-leaf text-sm"></i></div>
-                <span class="font-black text-slate-800 tracking-tight uppercase">Status Sóbrio</span>
-            </div>
-            <button onclick="logout()" class="text-xs font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-xl hover:bg-slate-50 transition">SAIR</button>
+            <span class="font-black text-slate-800 tracking-tight uppercase">Status Sóbrio</span>
+            <button onclick="logout()" class="text-xs font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-xl">SAIR</button>
         </nav>
 
         <div class="max-w-3xl mx-auto p-6 mt-8">
             <div id="quiz-section">
                 <div class="mb-10">
                     <div class="flex justify-between items-end mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Análise de Perfil Personalizada</span>
+                        <span class="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Análise de Perfil</span>
                         <span class="text-xs font-bold text-slate-400" id="progress-text">0%</span>
                     </div>
                     <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
@@ -92,59 +72,36 @@
                 </button>
             </div>
 
-            <div id="paywall-section" class="hidden animate-fadeIn">
-                <div class="text-center mb-10">
-                    <div class="inline-block bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-xs font-black uppercase mb-4">Análise Concluída</div>
-                    <h2 class="text-3xl font-black text-slate-800 mb-2">Seu Plano de Cura está pronto!</h2>
-                    <p class="text-slate-500">Com base nas suas 27 respostas, detectamos vulnerabilidades em 3 níveis. Escolha o melhor acesso para você:</p>
-                </div>
+            <div id="paywall-section" class="hidden animate-fadeIn text-center">
+                <h2 class="text-3xl font-black text-slate-800 mb-2">Plano de Cura Pronto!</h2>
+                <p class="text-slate-500 mb-10">Mapeamos suas 27 respostas para gerar seu guia exclusivo de recuperação.</p>
 
                 <div class="grid md:grid-cols-3 gap-6">
-                    <div class="plan-card bg-white p-6 rounded-3xl shadow-lg text-center flex flex-col">
-                        <span class="text-slate-400 text-xs font-bold uppercase mb-2">Teste</span>
-                        <h3 class="text-xl font-black mb-4">Semanal</h3>
-                        <div class="text-3xl font-black text-slate-800 mb-6">R$ 19<span class="text-sm">,90</span></div>
-                        <ul class="text-left text-xs space-y-3 mb-8 flex-grow">
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Plano Personalizado Integral</li>
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Acesso por 7 dias</li>
-                        </ul>
-                        <button onclick="checkout('semanal')" class="w-full py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">ASSINAR</button>
+                    <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border-2 border-slate-100">
+                        <h3 class="font-black mb-4 uppercase text-xs text-slate-400">Plano Rápido</h3>
+                        <div class="text-xl font-black mb-2">Semanal</div>
+                        <div class="text-3xl font-black text-slate-800 mb-6 font-mono">R$ 19,90</div>
+                        <button onclick="checkout('semanal')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
                     </div>
-
-                    <div class="plan-card bg-white p-6 rounded-3xl shadow-2xl text-center border-2 border-emerald-500 relative flex flex-col transform md:scale-110">
-                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Mais Vendido</div>
-                        <span class="text-emerald-600 text-xs font-bold uppercase mb-2">Foco Total</span>
-                        <h3 class="text-xl font-black mb-4">Mensal</h3>
-                        <div class="text-3xl font-black text-emerald-600 mb-6">R$ 47<span class="text-sm">,90</span></div>
-                        <ul class="text-left text-xs space-y-3 mb-8 flex-grow font-medium">
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Plano Personalizado Integral</li>
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Protocolo de 27 Dias</li>
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Suporte Prioritário</li>
-                        </ul>
-                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition">LIBERAR AGORA</button>
+                    <div class="bg-white p-6 rounded-3xl shadow-2xl border-2 border-emerald-500 transform md:scale-105 flex flex-col">
+                        <h3 class="font-black mb-4 uppercase text-xs text-emerald-500">Mais Recomendado</h3>
+                        <div class="text-xl font-black mb-2">Mensal</div>
+                        <div class="text-3xl font-black text-emerald-600 mb-6 font-mono">R$ 47,90</div>
+                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black shadow-lg">LIBERAR PLANO</button>
                     </div>
-
-                    <div class="plan-card bg-white p-6 rounded-3xl shadow-lg text-center flex flex-col">
-                        <span class="text-slate-400 text-xs font-bold uppercase mb-2">Blindagem</span>
-                        <h3 class="text-xl font-black mb-4">Anual</h3>
-                        <div class="text-3xl font-black text-slate-800 mb-6">R$ 197<span class="text-sm">,00</span></div>
-                        <ul class="text-left text-xs space-y-3 mb-8 flex-grow">
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Plano Personalizado Integral</li>
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Manutenção Pós-Cura</li>
-                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i>Novos Protocolos Inclusos</li>
-                        </ul>
-                        <button onclick="checkout('anual')" class="w-full py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">ASSINAR</button>
+                    <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border-2 border-slate-100">
+                        <h3 class="font-black mb-4 uppercase text-xs text-slate-400">Blindagem Total</h3>
+                        <div class="text-xl font-black mb-2">Anual</div>
+                        <div class="text-3xl font-black text-slate-800 mb-6 font-mono">R$ 197,00</div>
+                        <button onclick="checkout('anual')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
                     </div>
                 </div>
             </div>
 
             <div id="dashboard-section" class="hidden space-y-8 animate-fadeIn">
-                <div class="bg-emerald-600 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h2 class="text-3xl font-black mb-2">Seu Plano de Superação</h2>
-                        <p class="opacity-90 font-medium">Um guia completo baseado em cada detalhe da sua rotina.</p>
-                    </div>
-                    <i class="fa-solid fa-shield-heart absolute -right-4 -bottom-4 text-9xl opacity-10"></i>
+                <div class="bg-emerald-600 text-white p-8 rounded-3xl shadow-xl">
+                    <h2 class="text-3xl font-black mb-2">Sua Estratégia de Cura</h2>
+                    <p class="opacity-90 font-medium italic">Baseado em seu perfil metabólico, social e emocional.</p>
                 </div>
                 <div id="results-container" class="space-y-6"></div>
             </div>
@@ -152,6 +109,14 @@
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO DE PREÇOS DO STRIPE ---
+        // Cole aqui os IDs (price_xxx) gerados no painel do Stripe
+        const STRIPE_PRICES = {
+            semanal: 'price_1Sem70PYyZPASZksKSTHx43I',
+            mensal: 'price_1Sem4VPYyZPASZksHPjFavQK',
+            anual: 'price_1Sem70PYyZPASZkseoW54zmO'
+        };
+
         const SUPABASE_URL = 'https://lcfegwmcwivnkzxngnzi.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_jMboXUuARusN4xfPev_fsg_4r0WkPnh';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -161,7 +126,7 @@
         let isLogin = false;
 
         const questions = [
-            // EIXO PSICOLÓGICO
+            // EIXO PSICOLÓGICO (9)
             { id: 1, eixo: "Psicológico", text: "Com que frequência você usa o álcool para 'aliviar' um dia estressante?", options: ["Sempre", "Frequentemente", "Às vezes", "Raramente"] },
             { id: 2, eixo: "Psicológico", text: "Você sente que é uma pessoa diferente (mais confiante/feliz) quando bebe?", options: ["Totalmente", "Um pouco", "Raramente", "Não"] },
             { id: 3, eixo: "Psicológico", text: "Já sentiu culpa ou remorso por algo que disse ou fez enquanto bebia?", options: ["Sempre", "Muitas vezes", "Raramente", "Nunca"] },
@@ -171,7 +136,7 @@
             { id: 7, eixo: "Psicológico", text: "Você sente que o álcool preenche um 'vazio' emocional?", options: ["Sim, sinto isso", "Às vezes sinto", "Raramente", "Não"] },
             { id: 8, eixo: "Psicológico", text: "Já tentou parar de beber mas desistiu por se sentir 'vazio' ou depressivo?", options: ["Sim, várias vezes", "Tentei uma vez", "Nunca tentei", "Sempre consigo parar"] },
             { id: 9, eixo: "Psicológico", text: "O pensamento de nunca mais beber te causa pânico ou ansiedade?", options: ["Extrema", "Moderada", "Leve", "Nenhuma"] },
-            // EIXO SOCIAL
+            // EIXO SOCIAL (9)
             { id: 10, eixo: "Social", text: "A maioria dos seus amigos próximos consome álcool regularmente?", options: ["Todos eles", "A maioria", "Alguns", "Quase nenhum"] },
             { id: 11, eixo: "Social", text: "Você evita eventos sociais onde sabe que não haverá bebida?", options: ["Sempre evito", "Tento evitar", "Às vezes", "Nunca"] },
             { id: 12, eixo: "Social", text: "Seus familiares ou amigos já pediram para você 'pegar leve'?", options: ["Sim, muitos", "Sim, minha família", "Raramente", "Nunca"] },
@@ -181,7 +146,7 @@
             { id: 16, eixo: "Social", text: "Seus principais hobbies estão ligados a ambientes com álcool?", options: ["Todos", "A maioria", "Poucos", "Nenhum"] },
             { id: 17, eixo: "Social", text: "Você sente que perderia amigos se parasse de beber hoje?", options: ["Sim, perderia muitos", "Perderia alguns", "Poucos", "Não"] },
             { id: 18, eixo: "Social", text: "O álcool causou brigas em seus relacionamentos amorosos ou familiares?", options: ["Sim, graves", "Algumas brigas", "Apenas uma", "Nunca"] },
-            // EIXO BIOLÓGICO
+            // EIXO BIOLÓGICO (9)
             { id: 19, eixo: "Biológico", text: "Você sente tremores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
             { id: 20, eixo: "Biológico", text: "Como está a qualidade do seu sono após uma noite bebendo?", options: ["Péssima", "Acordo cansado", "Regular", "Não muda"] },
             { id: 21, eixo: "Biológico", text: "Você sente palpitações ou aceleração cardíaca no dia seguinte?", options: ["Sempre", "Muitas vezes", "Às vezes", "Nunca"] },
@@ -193,68 +158,51 @@
             { id: 27, eixo: "Biológico", text: "Quantos litros de água você bebe em um dia normal?", options: ["Menos de 1L", "Cerca de 1.5L", "2L ou mais", "Bebo apenas líquidos com álcool/açúcar"] }
         ];
 
-        // FUNÇÃO MESTRE: GERA O PLANO BASEADO NAS 27 RESPOSTAS
-        function generateUltraPersonalizedPlan(respostas) {
+        function generateCustomPlan(respostas) {
             let html = "";
-            
-            // FASE 1: CHOQUE E DESINTOXICAÇÃO (Dias 1-7)
+            // Bloco Biológico
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500">
+                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🛡️ Reparo Metabólico</h3>`;
+            if (respostas[18] === "Sempre") html += `<p class="mb-3 font-medium"><b>Sinal Vital:</b> Identificamos tremores. Seu sistema nervoso está em hiperexcitabilidade. O plano prioriza estabilização via magnésio e banhos frios.</p>`;
+            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3 font-medium"><b>Hidratação:</b> Seu nível de água é crítico para a remoção de acetaldeído. Protocolo de 3.5L diários obrigatório.</p>`;
+            html += `</div>`;
+
+            // Bloco Psicologia
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500">
+                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🧠 Blindagem Mental</h3>`;
+            if (respostas[0] === "Sempre") html += `<p class="mb-3 font-medium"><b>Gestão de Estresse:</b> Você usa o álcool como regulador emocional. Vamos substituir o gatilho das 18h pela técnica de respiração quadrada.</p>`;
+            if (respostas[6] === "Sim, sinto isso") html += `<p class="mb-3 font-medium"><b>Auto-imagem:</b> O 'vazio' será combatido com um cronograma de micro-vitórias matinais para elevar a dopamina natural.</p>`;
+            html += `</div>`;
+
+            // Bloco Social
             html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-emerald-500">
-                <h3 class="text-xl font-black text-emerald-700 mb-4 uppercase tracking-tighter">Fase 1: O Choque Químico (Dia 1 ao 7)</h3>`;
-            
-            if (respostas[18] === "Sempre" || respostas[20] === "Sempre") {
-                html += `<p class="mb-3"><b>⚠️ Alerta Biológico:</b> Suas respostas indicam sintomas de abstinência física. Nas primeiras 72h, seu plano foca em <b>repouso absoluto e hidratação com eletrólitos</b> para evitar palpitações.</p>`;
-            }
-            if (respostas[26] === "Menos de 1L" || respostas[26].includes("álcool/açúcar")) {
-                html += `<p class="mb-3"><b>💧 Hidratação Celular:</b> Como sua ingestão de água é crítica, o protocolo exige 500ml de água a cada 2h nas janelas de maior vontade de beber.</p>`;
-            }
+                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🌍 Recalibração Ambiental</h3>`;
+            if (respostas[9] === "Todos eles") html += `<p class="mb-3 font-medium"><b>Círculo Social:</b> Seu ambiente é de alto risco. O plano detalha como aplicar o 'distanciamento protetor' sem causar conflitos sociais.</p>`;
             html += `</div>`;
-
-            // FASE 2: REPROGRAMAÇÃO MENTAL (Dias 8-18)
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-blue-500">
-                <h3 class="text-xl font-black text-blue-700 mb-4 uppercase tracking-tighter">Fase 2: Reprogramação de Gatilhos (Dia 8 ao 18)</h3>`;
-            
-            if (respostas[0] === "Sempre" || respostas[3].includes("Sim")) {
-                html += `<p class="mb-3"><b>🧠 Gestão de Fuga:</b> Você usa o álcool para aliviar estresse/tristeza. Seu plano inclui a <b>Técnica da Pausa de 15 Minutos</b> sempre que o gatilho emocional disparar às 18h.</p>`;
-            }
-            if (respostas[9] === "Todos eles" || respostas[10] === "Sempre evito") {
-                html += `<p class="mb-3"><b>👥 Protocolo Social:</b> Como seu ambiente é altamente contaminado, entre o dia 10 e 15 você aplicará o 'Script de Saída Antecipada' em qualquer evento social.</p>`;
-            }
-            html += `</div>`;
-
-            // FASE 3: BLINDAGEM E MANUTENÇÃO (Dias 19-27)
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-purple-500">
-                <h3 class="text-xl font-black text-purple-700 mb-4 uppercase tracking-tighter">Fase 3: Blindagem Permanente (Dia 19 ao 27)</h3>`;
-            
-            if (respostas[23] === "Aumentou muito") {
-                html += `<p class="mb-3"><b>🛡️ Recuperação de Receptores:</b> Sua tolerância é alta. Nesta fase, o plano foca em atividades de alta dopamina natural (exercício intenso) para estabilizar o sistema de recompensa do seu cérebro.</p>`;
-            }
-            if (respostas[17] === "Sim, graves") {
-                html += `<p class="mb-3"><b>❤️ Reconstrução de Laços:</b> Seu plano termina com o módulo de 'Diálogo de Reparação' para reestruturar as relações afetadas pelo consumo.</p>`;
-            }
-            html += `<p class="mt-4 text-sm font-bold text-slate-400">Plano gerado especificamente para o ID: ${Math.random().toString(36).substr(2, 9)}</p></div>`;
 
             return html;
         }
 
-        // LÓGICA DO QUIZ
         function loadQuestion() {
             const q = questions[currentQuestion];
             const progress = Math.round((currentQuestion / questions.length) * 100);
             document.getElementById('progress-bar').style.width = progress + "%";
             document.getElementById('progress-text').innerText = progress + "%";
             document.getElementById('question-text').innerText = q.text;
-            
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-            
             q.options.forEach((opt) => {
                 const btn = document.createElement('div');
-                btn.className = 'quiz-option p-5 rounded-2xl font-bold bg-white shadow-sm border-2 border-slate-100 flex justify-between items-center group';
-                btn.innerHTML = `<span>${opt}</span><i class="fa-solid fa-circle-check text-emerald-500 opacity-0 group-[.selected]:opacity-100"></i>`;
+                btn.className = 'quiz-option p-5 rounded-2xl font-bold bg-white shadow-sm border-2 border-slate-100 flex justify-between items-center';
+                btn.innerHTML = `<span>${opt}</span><i class="fa-solid fa-check text-emerald-500 opacity-0"></i>`;
                 btn.onclick = () => {
                     userAnswers[currentQuestion] = opt;
-                    document.querySelectorAll('.quiz-option').forEach(el => el.classList.remove('selected'));
+                    document.querySelectorAll('.quiz-option').forEach(el => {
+                        el.classList.remove('selected');
+                        el.querySelector('i').classList.add('opacity-0');
+                    });
                     btn.classList.add('selected');
+                    btn.querySelector('i').classList.remove('opacity-0');
                     document.getElementById('next-btn').disabled = false;
                 };
                 container.appendChild(btn);
@@ -264,54 +212,29 @@
 
         function nextQuestion() {
             currentQuestion++;
-            if (currentQuestion < questions.length) {
-                loadQuestion();
-            } else {
+            if (currentQuestion < questions.length) loadQuestion();
+            else {
                 document.getElementById('quiz-section').classList.add('hidden');
                 document.getElementById('paywall-section').classList.remove('hidden');
-                saveToSupabase();
             }
         }
 
-        async function saveToSupabase() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) {
-                await _supabase.from('quiz_results').upsert({ 
-                    user_id: user.id, 
-                    answers_json: userAnswers,
-                    updated_at: new Date()
-                });
-            }
-        }
-
-        function checkout(plan) {
-            alert(`Plano ${plan.toUpperCase()} selecionado. Simulando pagamento...`);
+        function checkout(planType) {
+            const priceId = STRIPE_PRICES[planType];
+            console.log("Iniciando checkout Stripe ID:", priceId);
+            alert("Redirecionando para pagamento seguro...");
+            // Simulação de retorno de pagamento:
             document.getElementById('paywall-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
-            
-            const container = document.getElementById('results-container');
-            container.innerHTML = generateUltraPersonalizedPlan(userAnswers);
+            document.getElementById('results-container').innerHTML = generateCustomPlan(userAnswers);
         }
 
-        // AUTH & BOOTSTRAP (MANTIDOS)
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const btn = document.getElementById('main-auth-btn');
-            if(!email || !password) return alert("Preencha tudo.");
-            btn.disabled = true;
-            try {
-                if (isLogin) {
-                    await _supabase.auth.signInWithPassword({ email, password });
-                } else {
-                    const { error } = await _supabase.auth.signUp({ email, password });
-                    if(!error) {
-                        document.getElementById('login-form').classList.add('hidden');
-                        document.getElementById('otp-form').classList.remove('hidden');
-                    }
-                }
-            } catch (e) { alert(e.message); }
-            finally { btn.disabled = false; }
+            if(!email || !password) return alert("Preencha os campos.");
+            if(isLogin) await _supabase.auth.signInWithPassword({ email, password });
+            else await _supabase.auth.signUp({ email, password });
         }
 
         _supabase.auth.onAuthStateChange((event, session) => {
@@ -330,7 +253,6 @@
         function toggleMode() {
             isLogin = !isLogin;
             document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR';
-            document.getElementById('toggle-link').innerText = isLogin ? 'Criar nova conta' : 'Já tem conta? Login';
         }
 
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
