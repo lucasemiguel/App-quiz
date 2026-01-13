@@ -201,15 +201,33 @@
         }
 
         async function resetPassword() {
-            const email = document.getElementById('reset-email').value;
-            const msgEl = document.getElementById('reset-msg');
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + window.location.pathname,
-            });
-            msgEl.classList.remove('hidden');
-            if (error) { msgEl.innerText = "Erro: " + error.message; msgEl.style.color = "red"; }
-            else { msgEl.innerText = "Link de recuperação enviado!"; msgEl.style.color = "green"; }
-        }
+    // Aqui pegamos o e-mail que o usuário digitou no campo
+    const emailSolicitado = document.getElementById('reset-email').value;
+    const msgEl = document.getElementById('reset-msg');
+    
+    if(!emailSolicitado) {
+        alert("Por favor, digite o e-mail que deseja recuperar.");
+        return;
+    }
+
+    msgEl.classList.remove('hidden');
+    msgEl.innerText = "Verificando e-mail...";
+    msgEl.style.color = "orange";
+
+    // O Supabase enviará o link para o e-mail contido na variável emailSolicitado
+    const { error } = await _supabase.auth.resetPasswordForEmail(emailSolicitado, {
+        // Isso garante que, ao clicar no e-mail, ele volte para o seu app na Vercel
+        redirectTo: 'https://app-quiz-fawn.vercel.app',
+    });
+
+    if (error) {
+        msgEl.innerText = "Erro: " + error.message;
+        msgEl.style.color = "red";
+    } else {
+        msgEl.innerText = "Link de recuperação enviado para " + emailSolicitado + "!";
+        msgEl.style.color = "green";
+    }
+}
 
         _supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === "PASSWORD_RECOVERY" || window.location.hash.includes('type=recovery')) {
