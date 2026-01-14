@@ -3,168 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste de Plano | Status Sóbrio</title>
+    <title>Status Sóbrio | I am Sober Style</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8F9FD; }
         .hidden { display: none; }
-        .quiz-option { cursor: pointer; transition: all 0.2s; border: 2px solid #e2e8f0; }
-        .quiz-option:hover { border-color: #10b981; background-color: #f0fdf4; }
-        .quiz-option.selected { border-color: #10b981; background-color: #10b981; color: white; }
-        .progress-bar { transition: width 0.4s ease; }
         
-        /* ESTILO I AM SOBER */
-        .sober-card {
+        /* Estilo das Opções - I am Sober */
+        .quiz-option { 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            border: 1px solid #E5E7EB; 
             background: white;
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
+            border-radius: 16px;
         }
-        .sober-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 10px;
+        .quiz-option:active { transform: scale(0.98); }
+        
+        /* Cards do Plano - Estética I am Sober */
+        .sober-container { max-width: 450px; margin: 0 auto; }
+        .plan-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        .section-title {
+            font-size: 13px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
+            letter-spacing: 1px;
+            color: #9CA3AF;
+            margin-bottom: 16px;
+            display: block;
         }
-        .accent-purple { background: #f5f3ff; color: #8b5cf6; }
-        .accent-blue { background: #eff6ff; color: #3b82f6; }
-        .accent-emerald { background: #ecfdf5; color: #10b981; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 p-6">
-
-    <div class="max-w-2xl mx-auto">
-        
-        <div id="quiz-section">
-            <div class="mb-8">
-                <div class="flex justify-between items-end mb-2">
-                    <span class="text-[10px] font-black uppercase text-emerald-600">Análise de Perfil</span>
-                    <span class="text-xs font-bold text-slate-400" id="progress-text">0%</span>
-                </div>
-                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="bg-emerald-500 h-full progress-bar" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="min-h-[250px]">
-                <h2 id="question-text" class="text-2xl font-black mb-6 leading-tight"></h2>
-                <div id="options-container" class="grid gap-3"></div>
-            </div>
-        </div>
-
-        <div id="dashboard-section" class="hidden animate-fadeIn">
-            <div class="text-center mb-10">
-                <div class="inline-block p-3 bg-emerald-100 rounded-full mb-4">
-                    <i class="fa-solid fa-check text-emerald-600 text-2xl"></i>
-                </div>
-                <h2 class="text-3xl font-black text-slate-800">Seu Plano de Recuperação</h2>
-                <p class="text-slate-500">Criado com base nas suas respostas</p>
-            </div>
-            
-            <div id="results-container"></div>
-            
-            <button onclick="location.reload()" class="w-full mt-8 p-4 text-slate-400 font-bold text-sm uppercase tracking-widest">Refazer Teste</button>
-        </div>
-
-    </div>
-
-    <script>
-        // Perguntas simplificadas para o seu teste de lógica
-        const questions = [
-            { id: 1, text: "Com que frequência bebe para aliviar o estresse?", options: ["Sempre", "Às vezes", "Raramente"] },
-            { id: 2, text: "Sente-se uma pessoa mais confiante quando bebe?", options: ["Sim, muito", "Um pouco", "Não"] },
-            { id: 3, text: "Já sentiu culpa por beber?", options: ["Muitas vezes", "Raramente", "Nunca"] },
-            { id: 4, text: "Bebe sozinho em casa?", options: ["Sim, é um hábito", "Às vezes", "Nunca"] },
-            { id: 5, text: "Quanto de água bebe por dia?", options: ["Menos de 1L", "Cerca de 2L", "Mais de 2L"] }
-        ];
-
-        let currentQuestion = 0;
-        let userAnswers = [];
-
-        function loadQuestion() {
-            const q = questions[currentQuestion];
-            const progress = Math.round((currentQuestion / questions.length) * 100);
-            
-            document.getElementById('progress-bar').style.width = progress + "%";
-            document.getElementById('progress-text').innerText = progress + "%";
-            document.getElementById('question-text').innerText = q.text;
-            
-            const container = document.getElementById('options-container');
-            container.innerHTML = '';
-            
-            q.options.forEach(opt => {
-                const btn = document.createElement('div');
-                btn.className = 'quiz-option p-5 rounded-2xl font-bold bg-white shadow-sm border-2 border-slate-100';
-                btn.innerText = opt;
-                btn.onclick = () => selectOption(opt);
-                container.appendChild(btn);
-            });
-        }
-
-        function selectOption(opt) {
-            userAnswers.push(opt);
-            currentQuestion++;
-            
-            if (currentQuestion < questions.length) {
-                loadQuestion();
-            } else {
-                showPlan();
-            }
-        }
-
-        function showPlan() {
-            document.getElementById('quiz-section').classList.add('hidden');
-            document.getElementById('dashboard-section').classList.remove('hidden');
-            
-            const container = document.getElementById('results-container');
-            
-            // Lógica de construção do plano estilo "I am Sober"
-            container.innerHTML = `
-                <div class="sober-card">
-                    <span class="sober-badge accent-purple">A Tua Motivação</span>
-                    <h3 class="text-xl font-black mb-3">O que vais recuperar:</h3>
-                    <p class="text-slate-600 flex items-start gap-3">
-                        <i class="fa-solid fa-heart text-purple-500 mt-1"></i>
-                        <span>${userAnswers[1] === "Sim, muito" ? '<b>A tua essência:</b> Vais voltar a sentir confiança sem precisar de substâncias.' : '<b>Clareza Mental:</b> O teu cérebro vai funcionar a 100% novamente.'}</span>
-                    </p>
-                </div>
-
-                <div class="sober-card border-l-4 border-l-rose-400">
-                    <span class="sober-badge accent-blue">Plano de Ataque</span>
-                    <h3 class="text-xl font-black mb-4">Gatilhos Identificados:</h3>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <span class="text-[10px] font-black text-rose-500 uppercase">Atenção</span>
-                        <p class="text-sm text-slate-600 mt-1">
-                            ${userAnswers[0] === "Sempre" ? 'O estresse é o teu maior inimigo. Troca o álcool por 10min de respiração às 18h.' : 'Identificamos que o hábito social é o teu ponto crítico. Prepara uma bebida não-alcoólica antes de sair.'}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="sober-card">
-                    <span class="sober-badge accent-emerald">Cronograma</span>
-                    <h3 class="text-xl font-black mb-4">Primeiras 24 Horas:</h3>
-                    <div class="flex gap-4">
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 bg-emerald-500 rounded-full"></div>
-                            <div class="w-0.5 h-full bg-slate-100"></div>
-                        </div>
-                        <div class="pb-4">
-                            <p class="text-sm font-bold">Desintoxicação Ativa</p>
-                            <p class="text-xs text-slate-500">${userAnswers[4] === "Menos de 1L" ? 'BEBE MAIS ÁGUA: O teu corpo precisa de 3L hoje.' : 'Continua a hidratação atual.'}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Inicia o teste
-        loadQuestion();
-    </script>
-</body>
-</html>
+        .milestone-dot {
+            width:
