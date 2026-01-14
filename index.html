@@ -25,11 +25,18 @@
             <div id="login-form">
                 <div class="text-center mb-8">
                     <h2 class="text-4xl font-black mb-2 text-emerald-600 tracking-tight">Status Sóbrio</h2>
-                    <p class="text-slate-400 font-medium">Sua nova vida começa agora.</p>
+                    <p class="text-slate-600 font-bold italic">Recupere sua clareza mental e o controle da sua vida hoje.</p>
                 </div>
                 <div class="space-y-4">
                     <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
-                    <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                    
+                    <div class="relative">
+                        <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                            <i id="eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
                     <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">CONTINUAR</button>
                 </div>
                 <div class="mt-8 text-center">
@@ -143,6 +150,18 @@
             { id: 27, text: "Quantos litros de água você bebe em um dia normal?", options: ["Menos de 1L", "Cerca de 1.5L", "2L ou mais", "Bebo apenas líquidos"] }
         ];
 
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
         function generateCustomPlan(respostas) {
             let html = "";
             html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500"><h3 class="text-xl font-black mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
@@ -159,7 +178,6 @@
             if (urlParams.get('pago') === 'sucesso') {
                 localStorage.setItem('status_pagamento', 'confirmado');
             }
-
             if (localStorage.getItem('status_pagamento') === 'confirmado') {
                 const saved = localStorage.getItem('userAnswers');
                 if (saved) {
@@ -234,7 +252,12 @@
             }
         });
 
-        function toggleMode() { isLogin = !isLogin; document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR'; }
+        function toggleMode() { 
+            isLogin = !isLogin; 
+            document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR';
+            document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Faça Login' : 'Já tem conta? Faça Login';
+        }
+
         async function logout() { 
             localStorage.removeItem('status_pagamento');
             await _supabase.auth.signOut(); 
@@ -243,4 +266,3 @@
     </script>
 </body>
 </html>
-
