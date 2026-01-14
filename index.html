@@ -29,9 +29,7 @@
                 </div>
                 <div class="space-y-4">
                     <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
-                    <div class="relative">
-                        <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
-                    </div>
+                    <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
                     <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">CONTINUAR</button>
                 </div>
                 <div class="mt-8 text-center">
@@ -102,8 +100,6 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DOS LINKS DO STRIPE ---
-        // Cole aqui os URLs de checkout (ex: https://buy.stripe.com/abc...)
         const STRIPE_LINKS = {
             semanal: 'https://buy.stripe.com/test_dRm7sN1vi95CdmYdaV5Rm00',
             mensal: 'https://buy.stripe.com/test_8x29AV2zmbdK4Qs6Mx5Rm01',
@@ -150,40 +146,27 @@
 
         function generateCustomPlan(respostas) {
             let html = "";
-            // Módulo Biológico
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500">
-                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
-            if (respostas[18] === "Sempre") html += `<p class="mb-3 font-medium"><b>Alerta de Abstinência:</b> Identificamos tremores físicos. Seu corpo está em estado de hiperexcitabilidade nervosa. Prioridade: Magnésio Quelato e Hidratação agressiva.</p>`;
-            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3 font-medium"><b>Protocolo de Hidratação:</b> Seu nível atual de água impede a filtragem de toxinas. Meta: 3L/dia para acelerar o reparo renal.</p>`;
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500"><h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
+            if (respostas[18] === "Sempre") html += `<p class="mb-3 font-medium"><b>Alerta de Abstinência:</b> Identificamos tremores. Prioridade: Magnésio e Hidratação.</p>`;
+            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3 font-medium"><b>Protocolo de Hidratação:</b> Meta 3L/dia para filtrar toxinas.</p>`;
             html += `</div>`;
 
-            // Módulo Psicológico
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500">
-                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🧠 Reprogramação Mental</h3>`;
-            if (respostas[0] === "Sempre") html += `<p class="mb-3 font-medium"><b>Substituição de Gatilho:</b> Você usa o álcool para aliviar estresse. Substituiremos o hábito das 18h por exercícios de respiração quadrada para regular o cortisol.</p>`;
-            if (respostas[6] === "O tempo todo") html += `<p class="mb-3 font-medium"><b>Foco Cognitivo:</b> Sua obsessão mental é alta. Vamos implementar o método de 'distração forçada' nos picos de desejo.</p>`;
-            html += `</div>`;
-
-            // Módulo Social
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-emerald-500">
-                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🛡️ Blindagem de Ambiente</h3>`;
-            if (respostas[9] === "Todos eles") html += `<p class="mb-3 font-medium"><b>Círculo Social:</b> Seu ambiente é 100% gatilho. O plano exige um 'jejum social' de 14 dias para estabilizar sua nova identidade.</p>`;
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500"><h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🧠 Reprogramação Mental</h3>`;
+            if (respostas[0] === "Sempre") html += `<p class="mb-3 font-medium"><b>Substituição de Gatilho:</b> Trocar o hábito das 18h por respiração para regular cortisol.</p>`;
             html += `</div>`;
             return html;
         }
 
-        // LÓGICA DE DETECÇÃO DE PAGAMENTO
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('pago') === 'sucesso') {
-                const savedAnswers = localStorage.getItem('userAnswers');
-                if (savedAnswers) {
+                const saved = localStorage.getItem('userAnswers');
+                if (saved) {
                     document.getElementById('auth-section').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
                     document.getElementById('quiz-section').classList.add('hidden');
                     document.getElementById('dashboard-section').classList.remove('hidden');
-                    document.getElementById('results-container').innerHTML = generateCustomPlan(JSON.parse(savedAnswers));
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    document.getElementById('results-container').innerHTML = generateCustomPlan(JSON.parse(saved));
                 }
             }
         });
@@ -229,8 +212,16 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             if(!email || !password) return alert("Preencha tudo.");
-            if(isLogin) await _supabase.auth.signInWithPassword({ email, password });
-            else await _supabase.auth.signUp({ email, password });
+            try {
+                if(isLogin) {
+                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if(error) throw error;
+                } else {
+                    const { error } = await _supabase.auth.signUp({ email, password });
+                    if(error) throw error;
+                    alert("Conta criada! Verifique seu e-mail ou faça login.");
+                }
+            } catch (err) { alert(err.message); }
         }
 
         _supabase.auth.onAuthStateChange((event, session) => {
