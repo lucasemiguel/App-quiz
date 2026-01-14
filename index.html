@@ -68,22 +68,21 @@
             <div id="paywall-section" class="hidden animate-fadeIn text-center">
                 <h2 class="text-3xl font-black text-slate-800 mb-2">Seu Plano está pronto!</h2>
                 <p class="text-slate-500 mb-10">Escolha o melhor plano para liberar seu guia personalizado de recuperação.</p>
-
                 <div class="grid md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border-2 border-slate-100">
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
                         <div class="text-xl font-black mb-2">Semanal</div>
-                        <div class="text-2xl font-black text-slate-800 mb-6">R$ 19,90</div>
+                        <div class="text-2xl font-black mb-6">R$ 19,90</div>
                         <button onclick="checkout('semanal')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-2xl border-2 border-emerald-500 transform md:scale-105 flex flex-col">
+                    <div class="bg-white p-6 rounded-3xl shadow-2xl border-2 border-emerald-500 transform md:scale-105">
                         <div class="text-emerald-500 font-black text-[10px] uppercase mb-2">Recomendado</div>
                         <div class="text-xl font-black mb-2">Mensal</div>
-                        <div class="text-3xl font-black text-emerald-600 mb-6">R$ 47,90</div>
-                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black shadow-lg">LIBERAR AGORA</button>
+                        <div class="text-3xl font-black mb-6">R$ 47,90</div>
+                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black">LIBERAR AGORA</button>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border-2 border-slate-100">
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
                         <div class="text-xl font-black mb-2">Anual</div>
-                        <div class="text-2xl font-black text-slate-800 mb-6">R$ 197,00</div>
+                        <div class="text-2xl font-black mb-6">R$ 197,00</div>
                         <button onclick="checkout('anual')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
                     </div>
                 </div>
@@ -146,13 +145,11 @@
 
         function generateCustomPlan(respostas) {
             let html = "";
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500"><h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
-            if (respostas[18] === "Sempre") html += `<p class="mb-3 font-medium"><b>Alerta de Abstinência:</b> Identificamos tremores. Prioridade: Magnésio e Hidratação.</p>`;
-            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3 font-medium"><b>Protocolo de Hidratação:</b> Meta 3L/dia para filtrar toxinas.</p>`;
-            html += `</div>`;
-
-            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500"><h3 class="text-xl font-black text-slate-800 mb-4 uppercase">🧠 Reprogramação Mental</h3>`;
-            if (respostas[0] === "Sempre") html += `<p class="mb-3 font-medium"><b>Substituição de Gatilho:</b> Trocar o hábito das 18h por respiração para regular cortisol.</p>`;
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500"><h3 class="text-xl font-black mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
+            if (respostas[18] === "Sempre") html += `<p class="mb-3"><b>Alerta de Abstinência:</b> Identificamos tremores físicos. Prioridade: Magnésio e Hidratação agressiva.</p>`;
+            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3"><b>Protocolo de Hidratação:</b> Seu nível atual de água é crítico. Meta: 3L/dia.</p>`;
+            html += `</div><div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500"><h3 class="text-xl font-black mb-4 uppercase">🧠 Reprogramação Mental</h3>`;
+            if (respostas[0] === "Sempre") html += `<p class="mb-3"><b>Substituição de Gatilho:</b> Trocar o hábito das 18h por exercícios de respiração.</p>`;
             html += `</div>`;
             return html;
         }
@@ -160,6 +157,10 @@
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('pago') === 'sucesso') {
+                localStorage.setItem('status_pagamento', 'confirmado');
+            }
+
+            if (localStorage.getItem('status_pagamento') === 'confirmado') {
                 const saved = localStorage.getItem('userAnswers');
                 if (saved) {
                     document.getElementById('auth-section').classList.add('hidden');
@@ -167,6 +168,7 @@
                     document.getElementById('quiz-section').classList.add('hidden');
                     document.getElementById('dashboard-section').classList.remove('hidden');
                     document.getElementById('results-container').innerHTML = generateCustomPlan(JSON.parse(saved));
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }
         });
@@ -219,7 +221,7 @@
                 } else {
                     const { error } = await _supabase.auth.signUp({ email, password });
                     if(error) throw error;
-                    alert("Conta criada! Verifique seu e-mail ou faça login.");
+                    alert("Conta criada! Verifique seu e-mail.");
                 }
             } catch (err) { alert(err.message); }
         }
@@ -228,12 +230,16 @@
             if (session) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-                loadQuestion();
+                if (localStorage.getItem('status_pagamento') !== 'confirmado') loadQuestion();
             }
         });
 
         function toggleMode() { isLogin = !isLogin; document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR'; }
-        async function logout() { await _supabase.auth.signOut(); location.reload(); }
+        async function logout() { 
+            localStorage.removeItem('status_pagamento');
+            await _supabase.auth.signOut(); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
