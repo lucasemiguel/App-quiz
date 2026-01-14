@@ -16,6 +16,9 @@
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Ajuste para os cards ficarem esticados */
+        .price-card { min-height: 450px; display: flex; flex-direction: column; justify-content: space-between; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans">
@@ -29,14 +32,12 @@
                 </div>
                 <div class="space-y-4">
                     <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
-                    
                     <div class="relative">
                         <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
                         <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                             <i id="eye-icon" class="fa-solid fa-eye"></i>
                         </button>
                     </div>
-
                     <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">CONTINUAR</button>
                 </div>
                 <div class="mt-8 text-center">
@@ -52,8 +53,8 @@
             <button onclick="logout()" class="text-xs font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-xl">SAIR</button>
         </nav>
 
-        <div class="max-w-3xl mx-auto p-6 mt-8">
-            <div id="quiz-section">
+        <div class="max-w-5xl mx-auto p-6 mt-8">
+            <div id="quiz-section" class="max-w-3xl mx-auto">
                 <div class="mb-10">
                     <div class="flex justify-between items-end mb-2">
                         <span class="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Análise de Perfil</span>
@@ -73,38 +74,57 @@
             </div>
 
             <div id="paywall-section" class="hidden animate-fadeIn text-center">
-                <h2 class="text-3xl font-black text-slate-800 mb-2">Seu Plano está pronto!</h2>
-                <p class="text-slate-500 mb-8">Escolha o seu nível de compromisso abaixo:</p>
+                <h2 class="text-4xl font-black text-slate-800 mb-2">Seu Plano está pronto!</h2>
+                <p class="text-slate-500 mb-12">Escolha o nível de acompanhamento ideal para sua jornada.</p>
                 
-                <div class="space-y-4 max-w-md mx-auto">
-                    <button onclick="checkout('semanal')" class="w-full bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex justify-between items-center hover:border-emerald-500 transition-all group">
-                        <div class="text-left">
-                            <div class="font-black text-slate-800 uppercase italic">Semanal</div>
-                            <div class="text-xs text-slate-400 font-bold uppercase tracking-tighter">7 dias de acesso</div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="price-card bg-white p-8 rounded-[2.5rem] shadow-lg border-2 border-slate-100 hover:border-emerald-200 transition-all">
+                        <div>
+                            <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                                <i class="fa-solid fa-calendar-day text-slate-400"></i>
+                            </div>
+                            <h3 class="text-xl font-black uppercase italic mb-2">Semanal</h3>
+                            <p class="text-slate-400 text-sm font-medium mb-6">Acesso rápido por 7 dias para testar o método.</p>
                         </div>
-                        <div class="text-xl font-black text-emerald-600 group-hover:scale-110 transition-transform">R$ 7,90</div>
-                    </button>
+                        <div>
+                            <div class="text-3xl font-black text-slate-800 mb-6">R$ 7,90</div>
+                            <button onclick="checkout('semanal')" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-all">COMEÇAR TESTE</button>
+                        </div>
+                    </div>
 
-                    <button onclick="checkout('mensal')" class="w-full bg-emerald-500 p-6 rounded-3xl shadow-xl transform hover:scale-[1.02] transition-all text-left relative overflow-hidden text-white">
-                        <div class="relative z-10">
-                            <div class="font-black text-xl italic uppercase">Plano Mensal</div>
-                            <div class="text-emerald-100 text-[10px] font-black mb-2 uppercase tracking-widest">O Plano mais escolhido</div>
-                            <div class="font-black text-3xl">R$ 29,90</div>
+                    <div class="price-card bg-white p-8 rounded-[2.5rem] shadow-2xl border-4 border-emerald-500 transform md:scale-105 relative overflow-hidden">
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">Popular</div>
+                        <div>
+                            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                                <i class="fa-solid fa-star text-emerald-500"></i>
+                            </div>
+                            <h3 class="text-xl font-black uppercase italic mb-2 text-emerald-600">Mensal</h3>
+                            <p class="text-slate-500 text-sm font-medium mb-6">Acesso completo ao guia, suporte e atualizações.</p>
                         </div>
-                        <i class="fa-solid fa-bolt absolute -right-4 -bottom-4 text-8xl text-emerald-400 opacity-30"></i>
-                    </button>
+                        <div>
+                            <div class="text-1xl font-bold text-slate-400 line-through">R$ 47,90</div>
+                            <div class="text-4xl font-black text-slate-800 mb-6">R$ 29,90</div>
+                            <button onclick="checkout('mensal')" class="w-full py-5 bg-emerald-500 text-white rounded-2xl font-black shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-all">LIBERAR AGORA</button>
+                        </div>
+                    </div>
 
-                    <button onclick="checkout('anual')" class="w-full bg-slate-800 p-6 rounded-3xl text-white flex justify-between items-center hover:bg-slate-700 transition-all group">
-                        <div class="text-left">
-                            <div class="font-black uppercase italic">Plano Anual</div>
-                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Mudança definitiva</div>
+                    <div class="price-card bg-white p-8 rounded-[2.5rem] shadow-lg border-2 border-slate-100 hover:border-emerald-200 transition-all">
+                        <div>
+                            <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                                <i class="fa-solid fa-shield-heart text-slate-400"></i>
+                            </div>
+                            <h3 class="text-xl font-black uppercase italic mb-2">Anual</h3>
+                            <p class="text-slate-400 text-sm font-medium mb-6">O melhor custo-benefício para sua cura definitiva.</p>
                         </div>
-                        <div class="text-xl font-black text-emerald-400 group-hover:scale-110 transition-transform">R$ 259,90</div>
-                    </button>
+                        <div>
+                            <div class="text-3xl font-black text-slate-800 mb-6">R$ 259,90</div>
+                            <button onclick="checkout('anual')" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-all">ASSINAR ANUAL</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="dashboard-section" class="hidden space-y-8 animate-fadeIn">
+            <div id="dashboard-section" class="hidden space-y-8 animate-fadeIn max-w-3xl mx-auto">
                 <div class="bg-emerald-600 text-white p-8 rounded-3xl shadow-xl">
                     <h2 class="text-3xl font-black mb-2">Seu Plano de Cura Personalizado</h2>
                     <p class="opacity-90">Este guia foi montado exclusivamente com base nas suas 27 respostas.</p>
@@ -148,7 +168,7 @@
             { id: 16, text: "Seus principais hobbies estão ligados a ambientes com álcool?", options: ["Todos", "A maioria", "Poucos", "Nenhum"] },
             { id: 17, text: "Você sente que perderia amigos se parasse de beber hoje?", options: ["Sim, perderia muitos", "Perderia alguns", "Poucos", "Não"] },
             { id: 18, text: "O álcool causou brigas em seus relacionamentos amorosos ou familiares?", options: ["Sim, graves", "Algumas brigas", "Apenas uma", "Nunca"] },
-            { id: 19, text: "Você sente treores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
+            { id: 19, text: "Você sente tremores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
             { id: 20, text: "Como está a qualidade do seu sono após uma noite bebendo?", options: ["Péssima", "Acordo cansado", "Regular", "Não muda"] },
             { id: 21, text: "Você sente palpitações ou aceleração cardíaca no dia seguinte?", options: ["Sempre", "Muitas vezes", "Às vezes", "Nunca"] },
             { id: 22, text: "Como você avalia seu nível de energia física atual?", options: ["Muito baixo", "Baixo", "Regular", "Muito alto"] },
