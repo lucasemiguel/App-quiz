@@ -3,104 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio | Sua Nova Jornada</title>
+    <title>Status Sóbrio | Plano de Cura Personalizado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .hidden { display: none; }
-        .quiz-option { cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid #e2e8f0; }
-        .quiz-option.selected { border-color: #10b981; background-color: #10b981; color: white; transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
+        .quiz-option { cursor: pointer; transition: all 0.2s; border: 2px solid #e2e8f0; }
+        .quiz-option:hover { border-color: #10b981; background-color: #f0fdf4; }
+        .quiz-option.selected { border-color: #10b981; background-color: #10b981; color: white; transform: scale(1.02); }
+        .progress-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        body { background-color: #f8fafc; scroll-behavior: smooth; }
     </style>
 </head>
-<body class="text-slate-800 font-sans">
+<body class="bg-slate-50 text-slate-800 font-sans">
 
-    <div id="auth-section" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-emerald-600 to-teal-800">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md animate-fadeIn">
-            <div class="text-center mb-8">
-                <div class="inline-block p-4 bg-emerald-100 rounded-2xl mb-4">
-                    <i class="fa-solid fa-leaf text-3xl text-emerald-600"></i>
+    <div id="auth-section" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-emerald-50 to-slate-100">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white">
+            <div id="login-form">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-black mb-2 text-emerald-600 tracking-tight">Status Sóbrio</h2>
+                    <p class="text-slate-400 font-medium">Sua nova vida começa agora.</p>
                 </div>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Status Sóbrio</h2>
-                <p class="text-emerald-600 font-bold italic mt-2">Recupere o controle da sua vida e sua liberdade hoje.</p>
-            </div>
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all">
-                
-                <div class="relative">
-                    <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all">
-                    <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500">
-                        <i id="eye-icon" class="fa-solid fa-eye"></i>
-                    </button>
+                <div class="space-y-4">
+                    <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                    <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500">
+                    <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">CONTINUAR</button>
                 </div>
-
-                <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition-all uppercase">CONTINUAR</button>
+                <div class="mt-8 text-center">
+                    <button onclick="toggleMode()" id="toggle-link" class="text-sm text-emerald-600 font-bold">Já tem conta? Faça Login</button>
+                </div>
             </div>
-            <button onclick="toggleMode()" id="toggle-link" class="w-full mt-6 text-sm text-emerald-600 font-bold hover:underline">Novo por aqui? Criar conta gratuita</button>
         </div>
     </div>
 
-    <div id="main-content" class="hidden min-h-screen">
-        <nav class="glass sticky top-0 z-50 border-b border-slate-100 p-4 flex justify-between items-center px-6">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white"><i class="fa-solid fa-leaf text-xs"></i></div>
-                <span class="font-black text-slate-800 tracking-tighter uppercase">STATUS SÓBRIO</span>
-            </div>
-            <button onclick="logout()" class="text-[10px] font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-full">SAIR</button>
+    <div id="main-content" class="hidden min-h-screen pb-20">
+        <nav class="glass sticky top-0 z-50 border-b border-slate-100 p-4 flex justify-between items-center shadow-sm">
+            <span class="font-black text-slate-800 tracking-tight uppercase">Status Sóbrio</span>
+            <button onclick="logout()" class="text-xs font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-xl">SAIR</button>
         </nav>
 
-        <div class="max-w-2xl mx-auto p-6">
-            <div id="quiz-section" class="mt-4">
-                <div class="mb-10 text-center">
-                    <div class="w-full bg-slate-200 h-2 rounded-full mb-4 overflow-hidden">
-                        <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+        <div class="max-w-3xl mx-auto p-6 mt-8">
+            <div id="quiz-section">
+                <div class="mb-10">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Análise de Perfil</span>
+                        <span class="text-xs font-bold text-slate-400" id="progress-text">0%</span>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest" id="progress-text">Análise de Perfil: 0%</span>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-emerald-500 h-full progress-bar" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[350px] flex flex-col justify-center animate-fadeIn">
+                <div class="min-h-[300px]">
                     <h2 id="question-text" class="text-2xl font-black mb-8 text-slate-800 leading-tight"></h2>
-                    <div id="options-container" class="grid gap-3"></div>
+                    <div id="options-container" class="grid gap-4"></div>
                 </div>
-                <button id="next-btn" onclick="nextQuestion()" class="mt-8 w-full bg-slate-800 text-white p-5 rounded-2xl font-black text-lg shadow-xl disabled:opacity-20 transition-all flex items-center justify-center gap-3" disabled>
-                    PRÓXIMO PASSO <i class="fa-solid fa-chevron-right text-sm"></i>
+                <button id="next-btn" onclick="nextQuestion()" class="mt-12 w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-lg shadow-xl disabled:opacity-30 transition-all flex items-center justify-center gap-3" disabled>
+                    PRÓXIMA ETAPA <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
 
-            <div id="paywall-section" class="hidden animate-fadeIn text-center py-6">
-                <h2 class="text-3xl font-black text-slate-800 mb-2">Plano Personalizado Pronto!</h2>
-                <p class="text-slate-500 mb-8 font-medium">Você está a um passo da sua nova versão. Escolha seu acesso:</p>
-                
-                <div class="space-y-4 max-w-sm mx-auto">
-                    <button onclick="checkout('semanal')" class="w-full bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex justify-between items-center hover:border-emerald-500 transition-all">
-                        <div class="text-left">
-                            <div class="font-black text-slate-800 uppercase italic">Semanal</div>
-                            <div class="text-xs text-slate-400 font-bold italic">7 dias de teste</div>
-                        </div>
-                        <div class="text-xl font-black text-emerald-600">R$ 7,90</div>
-                    </button>
-
-                    <button onclick="checkout('mensal')" class="w-full bg-emerald-500 p-6 rounded-3xl shadow-xl transform hover:scale-[1.02] transition-all text-left relative overflow-hidden text-white">
-                        <div class="relative z-10 font-black text-xl italic uppercase">Plano Mensal</div>
-                        <div class="relative z-10 text-emerald-100 text-xs font-bold mb-2 uppercase italic">Acesso Completo - Recomendado</div>
-                        <div class="relative z-10 font-black text-3xl">R$ 29,90</div>
-                        <i class="fa-solid fa-bolt absolute -right-4 -bottom-4 text-8xl text-emerald-400 opacity-30"></i>
-                    </button>
-
-                    <button onclick="checkout('anual')" class="w-full bg-slate-800 p-6 rounded-3xl text-white flex justify-between items-center hover:bg-slate-700 transition-all">
-                        <div class="text-left">
-                            <div class="font-black uppercase italic">Plano Anual</div>
-                            <div class="text-[10px] text-slate-400 font-bold uppercase italic">Garantia de Mudança</div>
-                        </div>
-                        <div class="text-xl font-black">R$ 259,90</div>
-                    </button>
+            <div id="paywall-section" class="hidden animate-fadeIn text-center">
+                <h2 class="text-3xl font-black text-slate-800 mb-2">Seu Plano está pronto!</h2>
+                <p class="text-slate-500 mb-10">Escolha o melhor plano para liberar seu guia personalizado de recuperação.</p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
+                        <div class="text-xl font-black mb-2">Semanal</div>
+                        <div class="text-2xl font-black mb-6">R$ 19,90</div>
+                        <button onclick="checkout('semanal')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-2xl border-2 border-emerald-500 transform md:scale-105">
+                        <div class="text-emerald-500 font-black text-[10px] uppercase mb-2">Recomendado</div>
+                        <div class="text-xl font-black mb-2">Mensal</div>
+                        <div class="text-3xl font-black mb-6">R$ 47,90</div>
+                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black">LIBERAR AGORA</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
+                        <div class="text-xl font-black mb-2">Anual</div>
+                        <div class="text-2xl font-black mb-6">R$ 197,00</div>
+                        <button onclick="checkout('anual')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
+                    </div>
                 </div>
             </div>
 
-            <div id="dashboard-section" class="hidden space-y-6 animate-fadeIn pb-10">
+            <div id="dashboard-section" class="hidden space-y-8 animate-fadeIn">
+                <div class="bg-emerald-600 text-white p-8 rounded-3xl shadow-xl">
+                    <h2 class="text-3xl font-black mb-2">Seu Plano de Cura Personalizado</h2>
+                    <p class="opacity-90">Este guia foi montado exclusivamente com base nas suas 27 respostas.</p>
+                </div>
                 <div id="results-container" class="space-y-6"></div>
             </div>
         </div>
@@ -122,62 +114,52 @@
         let isLogin = false;
 
         const questions = [
-            { id: 1, text: "Com que frequência você usa o álcool para aliviar o estresse?", options: ["Sempre", "Frequentemente", "Às vezes", "Raramente"] },
-            { id: 2, text: "Você sente que é uma pessoa diferente quando bebe?", options: ["Totalmente", "Um pouco", "Raramente", "Não"] },
-            { id: 3, text: "O álcool é sua forma de lidar com o tédio?", options: ["Sim", "Quase sempre", "Às vezes", "Não"] },
-            { id: 4, text: "Sente culpa no dia seguinte?", options: ["Sempre", "Frequentemente", "Raramente", "Nunca"] },
-            { id: 5, text: "Parar de beber te causa ansiedade?", options: ["Muita", "Moderada", "Leve", "Nenhuma"] }
+            { id: 1, text: "Com que frequência você usa o álcool para 'aliviar' um dia estressante?", options: ["Sempre", "Frequentemente", "Às vezes", "Raramente"] },
+            { id: 2, text: "Você sente que é uma pessoa diferente (mais confiante/feliz) quando bebe?", options: ["Totalmente", "Um pouco", "Raramente", "Não"] },
+            { id: 3, text: "Já sentiu culpa ou remorso por algo que disse ou fez enquanto bebia?", options: ["Sempre", "Muitas vezes", "Raramente", "Nunca"] },
+            { id: 4, text: "O álcool é sua principal forma de lidar com a tristeza ou tédio?", options: ["Sim, a única", "Quase sempre", "Às vezes", "Não"] },
+            { id: 5, text: "Você costuma beber sozinho em casa para relaxar?", options: ["Diariamente", "3+ vezes por semana", "Às vezes", "Nunca"] },
+            { id: 6, text: "Quanto você pensa em beber durante o seu dia de trabalho?", options: ["O tempo todo", "Muitas vezes", "Poucas vezes", "Nunca"] },
+            { id: 7, text: "Você sente que o álcool preenche um 'vazio' emocional?", options: ["Sim, sinto isso", "Às vezes sinto", "Raramente", "Não"] },
+            { id: 8, text: "Já tentou parar de beber mas desistiu por se sentir 'vazio' ou depressivo?", options: ["Sim, várias vezes", "Tentei uma vez", "Nunca tentei", "Sempre consigo parar"] },
+            { id: 9, text: "O pensamento de nunca mais beber te causa pânico ou ansiedade?", options: ["Extrema", "Moderada", "Leve", "Nenhuma"] },
+            { id: 10, text: "A maioria dos seus amigos próximos consome álcool regularmente?", options: ["Todos eles", "A maioria", "Alguns", "Quase nenhum"] },
+            { id: 11, text: "Você evita eventos sociais onde sabe que não haverá bebida?", options: ["Sempre evito", "Tento evitar", "Às vezes", "Nunca"] },
+            { id: 12, text: "Seus familiares ou amigos já pediram para você 'pegar leve'?", options: ["Sim, muitos", "Sim, minha família", "Raramente", "Nunca"] },
+            { id: 13, text: "Você sente pressão social para beber em happy hours ou festas?", options: ["Muita pressão", "Alguma pressão", "Leve pressão", "Nenhuma"] },
+            { id: 14, text: "Existem lugares específicos (bares/casas) que te dão vontade imediata de beber?", options: ["Vários", "Alguns", "Apenas um", "Nenhum"] },
+            { id: 15, text: "Você mentiria sobre a quantidade que bebeu para evitar julgamentos?", options: ["Sempre minto", "Às vezes", "Raramente", "Nunca"] },
+            { id: 16, text: "Seus principais hobbies estão ligados a ambientes com álcool?", options: ["Todos", "A maioria", "Poucos", "Nenhum"] },
+            { id: 17, text: "Você sente que perderia amigos se parasse de beber hoje?", options: ["Sim, perderia muitos", "Perderia alguns", "Poucos", "Não"] },
+            { id: 18, text: "O álcool causou brigas em seus relacionamentos amorosos ou familiares?", options: ["Sim, graves", "Algumas brigas", "Apenas uma", "Nunca"] },
+            { id: 19, text: "Você sente tremores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
+            { id: 20, text: "Como está a qualidade do seu sono após uma noite bebendo?", options: ["Péssima", "Acordo cansado", "Regular", "Não muda"] },
+            { id: 21, text: "Você sente palpitações ou aceleração cardíaca no dia seguinte?", options: ["Sempre", "Muitas vezes", "Às vezes", "Nunca"] },
+            { id: 22, text: "Como você avalia seu nível de energia física atual?", options: ["Muito baixo", "Baixo", "Regular", "Muito alto"] },
+            { id: 23, text: "Você tem tido 'apagões' (perda de memória) após o consumo?", options: ["Frequentemente", "Algumas vezes", "Raramente", "Nunca"] },
+            { id: 24, text: "Sua tolerância aumentou (precisa beber muito mais para sentir o efeito)?", options: ["Aumentou muito", "Um pouco", "Não notei", "Minha tolerância é baixa"] },
+            { id: 25, text: "Você costuma ter má digestão ou dores abdominais frequentes?", options: ["Sim, sempre", "Frequentemente", "Raramente", "Nunca"] },
+            { id: 26, text: "Sua alimentação piora significativamente quando você bebe?", options: ["Muito", "Moderadamente", "Pouco", "Não muda"] },
+            { id: 27, text: "Quantos litros de água você bebe em um dia normal?", options: ["Menos de 1L", "Cerca de 1.5L", "2L ou mais", "Bebo apenas líquidos"] }
         ];
 
-        function togglePassword() {
-            const passInput = document.getElementById('password');
-            const icon = document.getElementById('eye-icon');
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passInput.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
-
         function generateCustomPlan(respostas) {
-            return `
-                <div class="bg-white p-10 rounded-[3rem] shadow-xl text-center border-b-[6px] border-emerald-500 animate-fadeIn">
-                    <span class="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">Minha Jornada</span>
-                    <div class="text-6xl font-black text-slate-800 my-4 tracking-tighter">01 <span class="text-2xl text-emerald-500 italic">Dia</span></div>
-                    <p class="text-emerald-600 font-bold text-sm">O primeiro passo foi dado.</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-emerald-500 p-6 rounded-[2.5rem] text-white shadow-lg">
-                        <i class="fa-solid fa-piggy-bank mb-2 opacity-50"></i>
-                        <div class="text-[10px] font-bold uppercase opacity-80">Economia Est.</div>
-                        <div class="text-2xl font-black italic">R$ 180,00</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-[2.5rem] border-2 border-slate-100 shadow-sm">
-                        <i class="fa-solid fa-hourglass-start mb-2 text-emerald-500"></i>
-                        <div class="text-[10px] font-bold uppercase text-slate-400">Tempo Ganho</div>
-                        <div class="text-2xl font-black text-slate-800">12 Horas</div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2 italic">
-                        <i class="fa-solid fa-shield-halved text-emerald-500"></i> Seu Perfil Psicológico
-                    </h3>
-                    <p class="text-slate-600 leading-relaxed font-medium">
-                        Identificamos que seu padrão é de <b>${respostas[0] === "Sempre" ? "Dependência por Alívio" : "Fuga do Tédio"}</b>. 
-                        Este plano irá reprogramar suas noites para evitar gatilhos automáticos.
-                    </p>
-                </div>
-            `;
+            let html = "";
+            html += `<div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-rose-500"><h3 class="text-xl font-black mb-4 uppercase">🚀 Recuperação Metabólica</h3>`;
+            if (respostas[18] === "Sempre") html += `<p class="mb-3"><b>Alerta de Abstinência:</b> Identificamos tremores físicos. Prioridade: Magnésio e Hidratação agressiva.</p>`;
+            if (respostas[26] === "Menos de 1L") html += `<p class="mb-3"><b>Protocolo de Hidratação:</b> Seu nível atual de água é crítico. Meta: 3L/dia.</p>`;
+            html += `</div><div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-sky-500"><h3 class="text-xl font-black mb-4 uppercase">🧠 Reprogramação Mental</h3>`;
+            if (respostas[0] === "Sempre") html += `<p class="mb-3"><b>Substituição de Gatilho:</b> Trocar o hábito das 18h por exercícios de respiração.</p>`;
+            html += `</div>`;
+            return html;
         }
 
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('pago') === 'sucesso') localStorage.setItem('status_pagamento', 'confirmado');
-            
+            if (urlParams.get('pago') === 'sucesso') {
+                localStorage.setItem('status_pagamento', 'confirmado');
+            }
+
             if (localStorage.getItem('status_pagamento') === 'confirmado') {
                 const saved = localStorage.getItem('userAnswers');
                 if (saved) {
@@ -195,8 +177,70 @@
             const q = questions[currentQuestion];
             const progress = Math.round((currentQuestion / questions.length) * 100);
             document.getElementById('progress-bar').style.width = progress + "%";
-            document.getElementById('progress-text').innerText = `Análise: ${progress}%`;
+            document.getElementById('progress-text').innerText = progress + "%";
             document.getElementById('question-text').innerText = q.text;
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-            q.options.forEach(
+            q.options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option p-5 rounded-2xl font-bold bg-white shadow-sm border-2 border-slate-100';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    userAnswers[currentQuestion] = opt;
+                    document.querySelectorAll('.quiz-option').forEach(el => el.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('next-btn').disabled = false;
+                };
+                container.appendChild(btn);
+            });
+            document.getElementById('next-btn').disabled = true;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) loadQuestion();
+            else {
+                document.getElementById('quiz-section').classList.add('hidden');
+                document.getElementById('paywall-section').classList.remove('hidden');
+            }
+        }
+
+        function checkout(plan) {
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            window.location.href = STRIPE_LINKS[plan];
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if(!email || !password) return alert("Preencha tudo.");
+            try {
+                if(isLogin) {
+                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if(error) throw error;
+                } else {
+                    const { error } = await _supabase.auth.signUp({ email, password });
+                    if(error) throw error;
+                    alert("Conta criada! Verifique seu e-mail.");
+                }
+            } catch (err) { alert(err.message); }
+        }
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                if (localStorage.getItem('status_pagamento') !== 'confirmado') loadQuestion();
+            }
+        });
+
+        function toggleMode() { isLogin = !isLogin; document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR'; }
+        async function logout() { 
+            localStorage.removeItem('status_pagamento');
+            await _supabase.auth.signOut(); 
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
+
