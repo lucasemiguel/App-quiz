@@ -74,24 +74,33 @@
 
             <div id="paywall-section" class="hidden animate-fadeIn text-center">
                 <h2 class="text-3xl font-black text-slate-800 mb-2">Seu Plano está pronto!</h2>
-                <p class="text-slate-500 mb-10">Escolha o melhor plano para liberar seu guia personalizado de recuperação.</p>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
-                        <div class="text-xl font-black mb-2">Semanal</div>
-                        <div class="text-2xl font-black mb-6">R$ 19,90</div>
-                        <button onclick="checkout('semanal')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-2xl border-2 border-emerald-500 transform md:scale-105">
-                        <div class="text-emerald-500 font-black text-[10px] uppercase mb-2">Recomendado</div>
-                        <div class="text-xl font-black mb-2">Mensal</div>
-                        <div class="text-3xl font-black mb-6">R$ 47,90</div>
-                        <button onclick="checkout('mensal')" class="w-full py-4 bg-emerald-500 text-white rounded-xl font-black">LIBERAR AGORA</button>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-slate-100">
-                        <div class="text-xl font-black mb-2">Anual</div>
-                        <div class="text-2xl font-black mb-6">R$ 197,00</div>
-                        <button onclick="checkout('anual')" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold">ASSINAR</button>
-                    </div>
+                <p class="text-slate-500 mb-8">Escolha o seu nível de compromisso abaixo:</p>
+                
+                <div class="space-y-4 max-w-md mx-auto">
+                    <button onclick="checkout('semanal')" class="w-full bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex justify-between items-center hover:border-emerald-500 transition-all group">
+                        <div class="text-left">
+                            <div class="font-black text-slate-800 uppercase italic">Semanal</div>
+                            <div class="text-xs text-slate-400 font-bold uppercase tracking-tighter">7 dias de acesso</div>
+                        </div>
+                        <div class="text-xl font-black text-emerald-600 group-hover:scale-110 transition-transform">R$ 7,90</div>
+                    </button>
+
+                    <button onclick="checkout('mensal')" class="w-full bg-emerald-500 p-6 rounded-3xl shadow-xl transform hover:scale-[1.02] transition-all text-left relative overflow-hidden text-white">
+                        <div class="relative z-10">
+                            <div class="font-black text-xl italic uppercase">Plano Mensal</div>
+                            <div class="text-emerald-100 text-[10px] font-black mb-2 uppercase tracking-widest">O Plano mais escolhido</div>
+                            <div class="font-black text-3xl">R$ 29,90</div>
+                        </div>
+                        <i class="fa-solid fa-bolt absolute -right-4 -bottom-4 text-8xl text-emerald-400 opacity-30"></i>
+                    </button>
+
+                    <button onclick="checkout('anual')" class="w-full bg-slate-800 p-6 rounded-3xl text-white flex justify-between items-center hover:bg-slate-700 transition-all group">
+                        <div class="text-left">
+                            <div class="font-black uppercase italic">Plano Anual</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Mudança definitiva</div>
+                        </div>
+                        <div class="text-xl font-black text-emerald-400 group-hover:scale-110 transition-transform">R$ 259,90</div>
+                    </button>
                 </div>
             </div>
 
@@ -139,7 +148,7 @@
             { id: 16, text: "Seus principais hobbies estão ligados a ambientes com álcool?", options: ["Todos", "A maioria", "Poucos", "Nenhum"] },
             { id: 17, text: "Você sente que perderia amigos se parasse de beber hoje?", options: ["Sim, perderia muitos", "Perderia alguns", "Poucos", "Não"] },
             { id: 18, text: "O álcool causou brigas em seus relacionamentos amorosos ou familiares?", options: ["Sim, graves", "Algumas brigas", "Apenas uma", "Nunca"] },
-            { id: 19, text: "Você sente tremores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
+            { id: 19, text: "Você sente treores ou suor frio quando fica um dia sem beber?", options: ["Sempre", "Às vezes", "Raramente", "Nunca"] },
             { id: 20, text: "Como está a qualidade do seu sono após uma noite bebendo?", options: ["Péssima", "Acordo cansado", "Regular", "Não muda"] },
             { id: 21, text: "Você sente palpitações ou aceleração cardíaca no dia seguinte?", options: ["Sempre", "Muitas vezes", "Às vezes", "Nunca"] },
             { id: 22, text: "Como você avalia seu nível de energia física atual?", options: ["Muito baixo", "Baixo", "Regular", "Muito alto"] },
@@ -255,7 +264,7 @@
         function toggleMode() { 
             isLogin = !isLogin; 
             document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR';
-            document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Faça Login' : 'Já tem conta? Faça Login';
+            document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça Login';
         }
 
         async function logout() { 
