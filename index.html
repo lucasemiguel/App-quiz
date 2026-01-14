@@ -3,41 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio | I am Sober Style</title>
+    <title>Quiz e Plano - I am Sober</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F8F9FD; }
         .hidden { display: none; }
+        .option-btn { width: 100%; text-align: left; padding: 20px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 12px; font-weight: 600; cursor: pointer; }
+        .option-btn:hover { background-color: #f3f4f6; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .label { font-size: 12px; font-weight: 800; color: #999; text-transform: uppercase; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 p-5">
+
+    <div id="quiz-container" class="max-w-md mx-auto">
+        <div class="mb-5">
+            <div id="progress-text" class="text-xs font-bold text-gray-400 mb-1 uppercase">Pergunta 1 de 5</div>
+            <div class="w-full bg-gray-200 h-2 rounded-full">
+                <div id="progress-bar" class="bg-green-500 h-2 rounded-full" style="width: 20%"></div>
+            </div>
+        </div>
+        <h2 id="question-text" class="text-2xl font-bold mb-6 text-gray-800"></h2>
+        <div id="options-box"></div>
+    </div>
+
+    <div id="plan-container" class="max-w-md mx-auto hidden">
+        <h1 class="text-3xl font-black mb-6 text-gray-900">Seu Plano de Sobriedade</h1>
         
-        /* Estilo das Opções - I am Sober */
-        .quiz-option { 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            border: 1px solid #E5E7EB; 
-            background: white;
-            border-radius: 16px;
+        <div class="card">
+            <span class="label">Sua Razão Principal</span>
+            <div id="reason-content" class="text-lg font-semibold text-gray-700"></div>
+        </div>
+
+        <div class="card">
+            <span class="label">Seus Gatilhos Identificados</span>
+            <div id="trigger-content" class="space-y-4"></div>
+        </div>
+
+        <div class="card">
+            <span class="label">O que esperar (Cronograma)</span>
+            <div id="timeline-content" class="space-y-6 border-l-2 border-gray-100 ml-2 pl-4"></div>
+        </div>
+
+        <button onclick="location.reload()" class="w-full text-gray-400 font-bold py-4">REFAZER QUIZ</button>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Qual o principal motivo para você querer parar?", options: ["Minha Saúde", "Economizar Dinheiro", "Melhorar Relacionamentos", "Clareza Mental"] },
+            { q: "Com que frequência você sente gatilhos de estresse?", options: ["Diariamente", "Finais de semana", "Raramente"] },
+            { q: "Você costuma beber em situações sociais ou sozinho?", options: ["Socialmente", "Sozinho", "Ambos"] },
+            { q: "Como você se sente na manhã seguinte?", options: ["Com culpa", "Fisicamente mal", "Normal", "Muito cansado"] },
+            { q: "Quanto você costuma gastar por semana com álcool?", options: ["Até R$50", "Entre R$50 e R$200", "Mais de R$200"] }
+        ];
+
+        let currentQ = 0;
+        let answers = [];
+
+        function loadQuestion() {
+            const data = questions[currentQ];
+            document.getElementById('question-text').innerText = data.q;
+            document.getElementById('progress-text').innerText = `Pergunta ${currentQ + 1} de ${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+            
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = '';
+            
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(opt);
+                optionsBox.appendChild(btn);
+            });
         }
-        .quiz-option:active { transform: scale(0.98); }
-        
-        /* Cards do Plano - Estética I am Sober */
-        .sober-container { max-width: 450px; margin: 0 auto; }
-        .plan-card {
-            background: white;
-            border-radius: 28px;
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+
+        function handleAnswer(answer) {
+            answers.push(answer);
+            currentQ++;
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                renderPlan();
+            }
         }
-        .section-title {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #9CA3AF;
-            margin-bottom: 16px;
-            display: block;
+
+        function renderPlan() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('plan-container').classList.remove('hidden');
+
+            // Motivação Principal
+            document.getElementById('reason-content').innerText = `Você escolheu focar em ${answers[0]}. Lembre-se disso quando a vontade surgir.`;
+
+            // Gatilhos
+            const triggerBox = document.getElementById('trigger-content');
+            let triggerHTML = `<p class="font-bold text-red-500">Gatilho: ${answers[1] === 'Diariamente' ? 'Estresse do dia a dia' : 'Ambiente Social'}</p>`;
+            triggerHTML += `<p class="text-sm text-gray-600">Ação: ${answers[2] === 'Sozinho' ? 'Mantenha sua casa livre de estoque e mude sua rotina noturna.' : 'Evite lugares com álcool nos primeiros 30 dias.'}</p>`;
+            triggerBox.innerHTML = triggerHTML;
+
+            // Timeline
+            const timelineBox = document.getElementById('timeline-content');
+            timelineBox.innerHTML = `
+                <div><p class="font-bold">24 Horas</p><p class="text-sm text-gray-500">O álcool sai do seu sangue. Foco total em hidratação.</p></div>
+                <div><p class="font-bold">72 Horas</p><p class="text-sm text-gray-500">A ansiedade diminui. Seu corpo começa a recuperar o sono profundo.</p></div>
+                <div><p class="font-bold">1 Semana</p><p class="text-sm text-gray-500">Sua economia estimada será de aproximadamente ${answers[4]}.</p></div>
+            `;
         }
-        .milestone-dot {
-            width:
+
+        loadQuestion();
+    </script>
+</body>
+</html>
