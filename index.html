@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio | Sua Jornada</title>
+    <title>Status Sóbrio | Sua Nova Jornada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -26,14 +26,21 @@
                     <i class="fa-solid fa-leaf text-3xl text-emerald-600"></i>
                 </div>
                 <h2 class="text-3xl font-black text-slate-800 tracking-tight">Status Sóbrio</h2>
-                <p class="text-slate-400 font-medium italic">Inspirado no sucesso internacional.</p>
+                <p class="text-emerald-600 font-bold italic mt-2">Recupere o controle da sua vida e sua liberdade hoje.</p>
             </div>
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all">
-                <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all">
+                
+                <div class="relative">
+                    <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all">
+                    <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500">
+                        <i id="eye-icon" class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+
                 <button onclick="handleAuth()" id="main-auth-btn" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition-all uppercase">CONTINUAR</button>
             </div>
-            <button onclick="toggleMode()" id="toggle-link" class="w-full mt-6 text-sm text-emerald-600 font-bold hover:underline">Novo por aqui? Criar conta</button>
+            <button onclick="toggleMode()" id="toggle-link" class="w-full mt-6 text-sm text-emerald-600 font-bold hover:underline">Novo por aqui? Criar conta gratuita</button>
         </div>
     </div>
 
@@ -41,9 +48,9 @@
         <nav class="glass sticky top-0 z-50 border-b border-slate-100 p-4 flex justify-between items-center px-6">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white"><i class="fa-solid fa-leaf text-xs"></i></div>
-                <span class="font-black text-slate-800 tracking-tighter">STATUS SÓBRIO</span>
+                <span class="font-black text-slate-800 tracking-tighter uppercase">STATUS SÓBRIO</span>
             </div>
-            <button onclick="logout()" class="text-[10px] font-black text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-full">SAIR</button>
+            <button onclick="logout()" class="text-[10px] font-bold text-slate-400 border-2 border-slate-100 px-4 py-2 rounded-full">SAIR</button>
         </nav>
 
         <div class="max-w-2xl mx-auto p-6">
@@ -52,41 +59,41 @@
                     <div class="w-full bg-slate-200 h-2 rounded-full mb-4 overflow-hidden">
                         <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest" id="progress-text">Progresso: 0%</span>
+                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest" id="progress-text">Análise de Perfil: 0%</span>
                 </div>
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[350px] flex flex-col justify-center animate-fadeIn">
                     <h2 id="question-text" class="text-2xl font-black mb-8 text-slate-800 leading-tight"></h2>
                     <div id="options-container" class="grid gap-3"></div>
                 </div>
                 <button id="next-btn" onclick="nextQuestion()" class="mt-8 w-full bg-slate-800 text-white p-5 rounded-2xl font-black text-lg shadow-xl disabled:opacity-20 transition-all flex items-center justify-center gap-3" disabled>
-                    PRÓXIMO <i class="fa-solid fa-chevron-right text-sm"></i>
+                    PRÓXIMO PASSO <i class="fa-solid fa-chevron-right text-sm"></i>
                 </button>
             </div>
 
             <div id="paywall-section" class="hidden animate-fadeIn text-center py-6">
-                <h2 class="text-3xl font-black text-slate-800 mb-2">Plano Pronto!</h2>
-                <p class="text-slate-500 mb-8 font-medium">Libere seu acesso personalizado agora.</p>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">Plano Personalizado Pronto!</h2>
+                <p class="text-slate-500 mb-8 font-medium">Você está a um passo da sua nova versão. Escolha seu acesso:</p>
                 
                 <div class="space-y-4 max-w-sm mx-auto">
-                    <button onclick="checkout('semanal')" class="w-full bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex justify-between items-center hover:border-emerald-500 transition-all group">
+                    <button onclick="checkout('semanal')" class="w-full bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex justify-between items-center hover:border-emerald-500 transition-all">
                         <div class="text-left">
-                            <div class="font-black text-slate-800 italic uppercase">Semanal</div>
-                            <div class="text-xs text-slate-400 font-bold">Teste por 7 dias</div>
+                            <div class="font-black text-slate-800 uppercase italic">Semanal</div>
+                            <div class="text-xs text-slate-400 font-bold italic">7 dias de teste</div>
                         </div>
                         <div class="text-xl font-black text-emerald-600">R$ 7,90</div>
                     </button>
 
                     <button onclick="checkout('mensal')" class="w-full bg-emerald-500 p-6 rounded-3xl shadow-xl transform hover:scale-[1.02] transition-all text-left relative overflow-hidden text-white">
                         <div class="relative z-10 font-black text-xl italic uppercase">Plano Mensal</div>
-                        <div class="relative z-10 text-emerald-100 text-xs font-bold mb-2 uppercase">Mais Popular</div>
+                        <div class="relative z-10 text-emerald-100 text-xs font-bold mb-2 uppercase italic">Acesso Completo - Recomendado</div>
                         <div class="relative z-10 font-black text-3xl">R$ 29,90</div>
-                        <i class="fa-solid fa-star absolute -right-4 -bottom-4 text-8xl text-emerald-400 opacity-30"></i>
+                        <i class="fa-solid fa-bolt absolute -right-4 -bottom-4 text-8xl text-emerald-400 opacity-30"></i>
                     </button>
 
                     <button onclick="checkout('anual')" class="w-full bg-slate-800 p-6 rounded-3xl text-white flex justify-between items-center hover:bg-slate-700 transition-all">
                         <div class="text-left">
-                            <div class="font-black italic uppercase">Plano Anual</div>
-                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic">Melhor Custo Benefício</div>
+                            <div class="font-black uppercase italic">Plano Anual</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase italic">Garantia de Mudança</div>
                         </div>
                         <div class="text-xl font-black">R$ 259,90</div>
                     </button>
@@ -122,48 +129,47 @@
             { id: 5, text: "Parar de beber te causa ansiedade?", options: ["Muita", "Moderada", "Leve", "Nenhuma"] }
         ];
 
+        function togglePassword() {
+            const passInput = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
         function generateCustomPlan(respostas) {
             return `
                 <div class="bg-white p-10 rounded-[3rem] shadow-xl text-center border-b-[6px] border-emerald-500 animate-fadeIn">
-                    <span class="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">Tempo de Sobriedade</span>
+                    <span class="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">Minha Jornada</span>
                     <div class="text-6xl font-black text-slate-800 my-4 tracking-tighter">01 <span class="text-2xl text-emerald-500 italic">Dia</span></div>
-                    <p class="text-emerald-600 font-bold text-sm">Você está no comando agora.</p>
+                    <p class="text-emerald-600 font-bold text-sm">O primeiro passo foi dado.</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-emerald-500 p-6 rounded-[2.5rem] text-white shadow-lg">
                         <i class="fa-solid fa-piggy-bank mb-2 opacity-50"></i>
                         <div class="text-[10px] font-bold uppercase opacity-80">Economia Est.</div>
-                        <div class="text-2xl font-black">R$ 180,00</div>
+                        <div class="text-2xl font-black italic">R$ 180,00</div>
                     </div>
-                    <div class="bg-white p-6 rounded-[2.5rem] border-2 border-slate-100">
-                        <i class="fa-solid fa-clock mb-2 text-emerald-500"></i>
+                    <div class="bg-white p-6 rounded-[2.5rem] border-2 border-slate-100 shadow-sm">
+                        <i class="fa-solid fa-hourglass-start mb-2 text-emerald-500"></i>
                         <div class="text-[10px] font-bold uppercase text-slate-400">Tempo Ganho</div>
-                        <div class="text-2xl font-black">12h</div>
+                        <div class="text-2xl font-black text-slate-800">12 Horas</div>
                     </div>
                 </div>
 
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved text-emerald-500"></i> Análise do Perfil
+                    <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2 italic">
+                        <i class="fa-solid fa-shield-halved text-emerald-500"></i> Seu Perfil Psicológico
                     </h3>
                     <p class="text-slate-600 leading-relaxed font-medium">
-                        Identificamos um padrão de gatilho por <b>${respostas[0] === "Sempre" ? "Exaustão Mental" : "Socialização"}</b>. 
-                        Seu plano foca em substituir a recompensa dopaminérgica nas primeiras 72 horas.
+                        Identificamos que seu padrão é de <b>${respostas[0] === "Sempre" ? "Dependência por Alívio" : "Fuga do Tédio"}</b>. 
+                        Este plano irá reprogramar suas noites para evitar gatilhos automáticos.
                     </p>
-                </div>
-
-                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white relative overflow-hidden">
-                    <div class="relative z-10 flex justify-between items-end mb-4">
-                        <div>
-                            <div class="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Nível 1</div>
-                            <div class="text-xl font-bold italic font-serif">O Despertar</div>
-                        </div>
-                        <span class="text-xs font-bold opacity-60">1/3 Dias</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
-                        <div class="bg-emerald-500 h-full rounded-full" style="width: 33%"></div>
-                    </div>
                 </div>
             `;
         }
@@ -193,70 +199,4 @@
             document.getElementById('question-text').innerText = q.text;
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-            q.options.forEach(opt => {
-                const btn = document.createElement('div');
-                btn.className = 'quiz-option p-5 rounded-2xl font-bold bg-slate-50 text-center';
-                btn.innerText = opt;
-                btn.onclick = () => {
-                    userAnswers[currentQuestion] = opt;
-                    document.querySelectorAll('.quiz-option').forEach(el => el.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    document.getElementById('next-btn').disabled = false;
-                };
-                container.appendChild(btn);
-            });
-            document.getElementById('next-btn').disabled = true;
-        }
-
-        function nextQuestion() {
-            currentQuestion++;
-            if (currentQuestion < questions.length) loadQuestion();
-            else {
-                document.getElementById('quiz-section').classList.add('hidden');
-                document.getElementById('paywall-section').classList.remove('hidden');
-            }
-        }
-
-        function checkout(plan) {
-            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            window.location.href = STRIPE_LINKS[plan];
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            if(!email || !password) return alert("Preencha tudo.");
-            try {
-                if(isLogin) {
-                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                    if(error) throw error;
-                } else {
-                    const { error } = await _supabase.auth.signUp({ email, password });
-                    if(error) throw error;
-                    alert("Verifique seu e-mail!");
-                }
-            } catch (err) { alert(err.message); }
-        }
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                if (localStorage.getItem('status_pagamento') !== 'confirmado') loadQuestion();
-            }
-        });
-
-        function toggleMode() { 
-            isLogin = !isLogin; 
-            document.getElementById('main-auth-btn').innerText = isLogin ? 'ENTRAR' : 'CONTINUAR';
-            document.getElementById('toggle-link').innerText = isLogin ? 'Não tem conta? Crie aqui' : 'Já tem conta? Login';
-        }
-
-        async function logout() { 
-            localStorage.clear();
-            await _supabase.auth.signOut(); 
-            location.reload(); 
-        }
-    </script>
-</body>
-</html>
+            q.options.forEach(
