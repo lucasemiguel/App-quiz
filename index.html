@@ -15,6 +15,8 @@
         .hidden { display: none; }
         .option-btn { transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
         .option-btn:hover { background: rgba(79, 70, 229, 0.1); border-color: #6366f1; color: white; }
+        .plan-card { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .plan-card:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
     </style>
 </head>
 <body class="bg-[#0a0c10] text-gray-100 min-h-screen">
@@ -52,8 +54,8 @@
                     <p class="text-gray-400 leading-relaxed">Calcule em tempo real o capital que você está perdendo e trace um plano de reinvestimento na sua vida.</p>
                 </div>
                 <div class="glass p-10 rounded-[2rem]">
-                    <h3 class="text-xl font-bold mb-4 text-white">Foco em 72 Horas</h3>
-                    <p class="text-gray-400 leading-relaxed">As primeiras horas são as mais brutais. Receba um protocolo de blindagem imediata contra recaídas.</p>
+                    <h3 class="text-xl font-bold mb-4 text-white">Plano de Ação</h3>
+                    <p class="text-gray-400 leading-relaxed">Receba um roteiro estruturado para lidar com crises e reconstruir sua rotina de forma sustentável.</p>
                 </div>
             </div>
         </section>
@@ -92,38 +94,25 @@
 
     <script>
         const questions = [
-            // BLOCO FINANCEIRO
             { id: 1, q: "Com que frequência você consome atualmente?", options: ["Diariamente", "3 a 5 vezes por semana", "Apenas finais de semana", "De forma esporádica/crises"] },
             { id: 2, q: "Quanto você gasta em média em cada dia de uso?", options: ["Até R$ 30", "R$ 30 a R$ 100", "R$ 100 a R$ 300", "Mais de R$ 300"] },
             { id: 3, q: "O consumo já afetou sua capacidade de pagar contas básicas?", options: ["Nunca afetou", "Afeta ocasionalmente", "Sinto um impacto constante", "Estou em crise financeira grave"] },
-            
-            // BLOCO TEMPO/PRODUTIVIDADE
             { id: 4, q: "Quanto tempo do seu dia é roubado pelo consumo e ressaca?", options: ["1 a 2 horas", "Metade do meu dia", "Sinto que minha vida parou", "Apenas o período noturno"] },
             { id: 5, q: "Sua produtividade no trabalho/estudos caiu nos últimos 6 meses?", options: ["Continua igual", "Caiu levemente", "Sinto que estou sendo notado", "Estou prestes a perder meu cargo"] },
-            
-            // BLOCO NEUROCIÊNCIA/EMOCIONAL
             { id: 6, q: "Qual o sentimento gatilho mais forte para você?", options: ["Ansiedade ou agitação física", "Tristeza ou solidão profunda", "Tédio e falta de propósito", "Raiva ou frustração social"] },
             { id: 7, q: "Você sente que 'merece' consumir após um dia difícil?", options: ["Sempre, é minha recompensa", "Frequentemente", "Raramente", "Não vejo como recompensa"] },
             { id: 8, q: "Como você se sente 30 minutos após o consumo?", options: ["Alívio imediato", "Euforia artificial", "Culpa instantânea", "Apenas anestesiado"] },
             { id: 9, q: "Você consome sozinho ou sempre acompanhado?", options: ["Sempre sozinho e escondido", "A maioria das vezes sozinho", "Em grupos, mas exagero", "Apenas em situações sociais"] },
-            
-            // BLOCO SOCIAL/AMBIENTE
             { id: 10, q: "Seus amigos mais próximos são usuários?", options: ["Sim, todos eles", "A grande maioria", "Alguns, mas não os principais", "Nenhum deles"] },
             { id: 11, q: "Existe alguém na sua família que você esconde o vício?", options: ["Sim, de todos", "Sim, de pessoas específicas", "Não, todos sabem", "Não, mas suspeitam"] },
             { id: 12, q: "Como é o seu ambiente doméstico hoje?", options: ["Tenso e com brigas frequentes", "Solitário e silencioso", "Normal, mas me sinto um estranho", "Apoiador e tranquilo"] },
-            
-            // BLOCO FISIOLÓGICO
             { id: 13, q: "Como está seu padrão de sono?", options: ["Insônia severa", "Só durmo se consumir", "Acordo cansado/ressaca moral", "Sono regular"] },
             { id: 14, q: "Você sente tremores ou suor frio ao tentar parar?", options: ["Sim, de forma intensa", "Sim, levemente", "Sinto apenas agitação mental", "Nunca senti sintomas físicos"] },
             { id: 15, q: "Sua alimentação piorou desde que o vício intensificou?", options: ["Como compulsivamente", "Perdi o apetite total", "Como apenas coisas não saudáveis", "Não houve mudança"] },
-
-            // BLOCO PSICOLÓGICO PROFUNDO
             { id: 16, q: "Qual o seu maior medo em relação ao futuro?", options: ["Morrer sozinho", "Ficar doente e dependente", "Perder o amor da minha família", "Ver minha vida financeira sumir"] },
             { id: 17, q: "Você já mentiu para um médico ou terapeuta sobre o uso?", options: ["Sempre omito a verdade", "Já menti algumas vezes", "Falo a verdade, mas me sinto mal", "Nunca procurei ajuda"] },
             { id: 18, q: "Você se sente capaz de parar sozinho hoje?", options: ["Totalmente capaz", "Acho que consigo, mas falho", "Sinto que perdi o controle", "Sei que preciso de ajuda externa"] },
             { id: 19, q: "O vício te impede de realizar um sonho específico?", options: ["Sim, paralisou meus projetos", "Dificulta muito o progresso", "Ainda não sinto esse impacto", "Não tenho planos no momento"] },
-
-            // BLOCO COMPORTAMENTAL
             { id: 20, q: "Qual o horário mais 'perigoso' do seu dia?", options: ["Manhã cedo", "Horário do almoço", "Final da tarde (18h)", "Madrugada"] },
             { id: 21, q: "Você costuma trocar o vício por outro (ex: comida/telas)?", options: ["Sim, sempre substituo", "Às vezes sinto essa troca", "Não percebi isso ainda", "Consumo tudo junto"] },
             { id: 22, q: "Como você reage a críticas sobre seu consumo?", options: ["Fico com raiva e consumo mais", "Me sinto culpado e me escondo", "Ignoro e finjo que não ouvi", "Concordo, mas não mudo"] },
@@ -185,9 +174,9 @@
                         <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <h3 class="text-3xl font-extrabold text-white mb-4 italic">Seu 'Porquê' Inegociável</h3>
-                    <p class="text-gray-400">Para a nossa IA criar seu plano, ela precisa saber: O que o vício te tirou que você mais quer de volta? (Seja brutalmente sincero).</p>
+                    <p class="text-gray-400">Para a nossa IA criar seu plano, ela precisa saber: O que o vício te tirou que você mais quer de volta?</p>
                 </div>
-                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Quero voltar a olhar meu filho nos olhos sem vergonha..."></textarea>
+                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Escreva aqui seu motivo real..."></textarea>
                 <button onclick="processFinal()" class="mt-8 w-full btn-primary text-white font-bold py-6 rounded-2xl text-xl uppercase tracking-widest shadow-2xl">
                     Gerar Diagnóstico por IA
                 </button>
@@ -198,20 +187,71 @@
             const motive = document.getElementById('motive-text').value;
             if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe para a IA trabalhar.");
             
-            // Simulação de carregamento da IA
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
                 <div class="text-center py-20">
                     <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mx-auto mb-10"></div>
-                    <h3 class="text-2xl font-bold text-white mb-2 tracking-tighter uppercase">Analisando Padrões Neurais</h3>
-                    <p class="text-gray-500">O Status Sóbrio está calculando sua economia e estruturando seu plano de 72 horas...</p>
+                    <h3 class="text-2xl font-bold text-white mb-2 tracking-tighter uppercase">Analisando Perfil Comportamental</h3>
+                    <p class="text-gray-500">Aguarde, o Status Sóbrio está estruturando seu plano personalizado...</p>
                 </div>
             `;
             
-            // Aqui entrará o redirecionamento para o pagamento da Stripe
             setTimeout(() => {
-                alert("Diagnóstico completo! Agora o usuário seria redirecionado para o Checkout da Stripe de R$ 29,90.");
+                showPaymentOptions();
             }, 3000);
+        }
+
+        function showPaymentOptions() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="text-center mb-10">
+                    <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tighter">DIAGNÓSTICO PRONTO.</h3>
+                    <p class="text-gray-400">Escolha o plano ideal para liberar o acesso ao seu cronograma personalizado.</p>
+                </div>
+                
+                <div class="grid gap-6">
+                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('mensal')">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Plano Mensal</h4>
+                            <p class="text-gray-500 text-xs">Acesso total por 30 dias</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-indigo-400 font-bold text-xl">R$ 29,90</span>
+                            <p class="text-[10px] text-gray-600 uppercase">Por mês</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card p-6 rounded-2xl border-indigo-500 bg-indigo-500/5 flex justify-between items-center relative overflow-hidden cursor-pointer" onclick="redirectToStripe('trimestral')">
+                        <div class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] px-3 py-0.5 font-bold uppercase">Mais Popular</div>
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Plano Trimestral</h4>
+                            <p class="text-gray-500 text-xs">90 dias de acompanhamento</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-indigo-400 font-bold text-xl">R$ 69,90</span>
+                            <p class="text-[10px] text-gray-600 uppercase">Pagamento Único</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('vitalicio')">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Acesso Vitalício</h4>
+                            <p class="text-gray-500 text-xs">Seu guia para sempre</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-indigo-400 font-bold text-xl">R$ 149,90</span>
+                            <p class="text-[10px] text-gray-600 uppercase">Pagamento Único</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-center text-gray-600 text-[10px] mt-10 uppercase tracking-[0.2em]">Pagamentos processados com segurança via Stripe</p>
+            `;
+        }
+
+        function redirectToStripe(plan) {
+            alert("Redirecionando para o Checkout Seguro do plano " + plan + "...");
+            // No futuro, aqui entrará: window.location.href = "seu_link_da_stripe";
         }
     </script>
 </body>
