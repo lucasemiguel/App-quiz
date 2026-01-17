@@ -3,80 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Método Liberdade | Plano de Sobriedade Personalizado</title>
+    <title>Status Sóbrio | Plano de Recuperação Inteligente</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .gradient-dark { background: radial-gradient(circle at top, #1a202c 0%, #0a0c10 100%); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-primary { background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5); }
         .hidden { display: none; }
-        .gradient-bg { background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%); }
+        .option-btn { transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .option-btn:hover { background: rgba(79, 70, 229, 0.1); border-color: #6366f1; color: white; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-[#0a0c10] text-gray-100 min-h-screen">
 
-    <section id="landing-page" class="min-h-screen flex flex-col">
-        <nav class="p-6 flex justify-between items-center bg-white shadow-sm">
-            <h1 class="text-2xl font-bold text-indigo-600 italic">MÉTODO LIBERDADE</h1>
-            <a href="mailto:seuemail@teste.com" class="text-sm text-gray-500">Suporte</a>
+    <div id="landing-page">
+        <nav class="flex justify-between items-center px-8 py-6 border-b border-gray-800 bg-[#0a0c10]/80 sticky top-0 z-50 backdrop-blur-md">
+            <div class="text-2xl font-extrabold tracking-tighter text-white">STATUS <span class="text-indigo-500">SÓBRIO</span></div>
+            <div class="hidden md:block text-xs text-gray-400 uppercase tracking-widest font-semibold">Tecnologia de Precisão em Sobriedade</div>
         </nav>
 
-        <main class="flex-grow flex flex-col items-center justify-center px-6 text-center gradient-bg text-white">
-            <h2 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-                Recupere o controle da sua vida com <span class="text-indigo-400">Inteligência Artificial.</span>
-            </h2>
-            <p class="text-xl mb-10 text-gray-300 max-w-2xl">
-                Não oferecemos conselhos genéricos. Criamos um plano de ação baseado nos seus gatilhos, sua rotina e seu propósito inegociável.
+        <header class="max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
+            <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">
+                Análise Comportamental via IA
+            </div>
+            <h1 class="text-5xl md:text-8xl font-extrabold mb-8 tracking-tight leading-[1.1]">
+                Sua mente não é genérica. <br><span class="text-indigo-500">Seu plano também não.</span>
+            </h1>
+            <p class="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
+                O Status Sóbrio mapeia seus gatilhos neurais e financeiros para criar o primeiro cronograma de sobriedade 100% personalizado por Inteligência Artificial.
             </p>
-            <button onclick="startQuiz()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg transform transition hover:scale-105">
-                GERAR MEU PLANO PERSONALIZADO
+            <button onclick="startQuiz()" class="btn-primary text-white font-bold py-6 px-14 rounded-2xl text-xl uppercase tracking-wider">
+                Iniciar Diagnóstico Gratuito
             </button>
-            <p class="mt-4 text-sm text-gray-400">Leva apenas 5 minutos. 100% Privado.</p>
-        </main>
+            <p class="mt-6 text-gray-500 text-sm italic">Tempo estimado: 6 minutos. Sigilo absoluto garantido.</p>
+        </header>
 
-        <footer class="p-10 bg-white border-t border-gray-200">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-gray-600 text-center md:text-left">
-                <div>
-                    <h4 class="font-bold mb-2">Método Liberdade</h4>
-                    <p>© 2026 - Todos os direitos reservados.</p>
+        <section class="max-w-6xl mx-auto px-6 py-20 border-t border-gray-800/50">
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="glass p-10 rounded-[2rem]">
+                    <h3 class="text-xl font-bold mb-4 text-white">Engenharia de Hábitos</h3>
+                    <p class="text-gray-400 leading-relaxed">Não usamos frases motivacionais vazias. Usamos dados sobre sua rotina para preencher lacunas de dopamina.</p>
                 </div>
-                <div class="space-y-2">
-                    <p><a href="#" class="hover:underline">Termos de Uso</a></p>
-                    <p><a href="#" class="hover:underline">Política de Privacidade</a></p>
-                    <p><a href="#" class="hover:underline">Política de Reembolso</a></p>
+                <div class="glass p-10 rounded-[2rem] border-indigo-500/30">
+                    <h3 class="text-xl font-bold mb-4 text-white">Liberdade Financeira</h3>
+                    <p class="text-gray-400 leading-relaxed">Calcule em tempo real o capital que você está perdendo e trace um plano de reinvestimento na sua vida.</p>
+                </div>
+                <div class="glass p-10 rounded-[2rem]">
+                    <h3 class="text-xl font-bold mb-4 text-white">Foco em 72 Horas</h3>
+                    <p class="text-gray-400 leading-relaxed">As primeiras horas são as mais brutais. Receba um protocolo de blindagem imediata contra recaídas.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="border-t border-gray-800 py-16 px-8 bg-black/20">
+            <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-12 text-sm">
+                <div class="col-span-2">
+                    <div class="text-xl font-bold text-white mb-4">STATUS SÓBRIO</div>
+                    <p class="text-gray-500 max-w-sm">A primeira plataforma brasileira que une neurociência e IA para o tratamento digital de vícios e comportamentos compulsivos.</p>
                 </div>
                 <div>
-                    <p>Contato: suporte@metodoliberdade.com</p>
-                    <p>Site Seguro via Stripe</p>
+                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-widest">Legal</h4>
+                    <ul class="space-y-3 text-gray-500">
+                        <li><a href="#" class="hover:text-indigo-400 transition">Termos de Uso</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition">Política de Privacidade</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition">Política de Reembolso</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-widest">Suporte</h4>
+                    <p class="text-gray-500">suporte@statussobrio.com</p>
+                    <div class="mt-4 p-2 border border-gray-800 inline-block rounded">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" width="60" alt="Stripe">
+                    </div>
                 </div>
             </div>
         </footer>
-    </section>
+    </div>
 
-    <section id="quiz-section" class="hidden min-h-screen bg-gray-100 py-12 px-4">
-        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-            <div id="quiz-container">
+    <div id="quiz-section" class="hidden min-h-screen flex flex-col items-center justify-center p-6 gradient-dark">
+        <div class="w-full max-w-2xl">
+            <div id="quiz-container" class="glass p-10 md:p-16 rounded-[3rem] shadow-2xl">
                 </div>
         </div>
-    </section>
+    </div>
 
     <script>
-        // Configuração das Perguntas Profundas
         const questions = [
-            {
-                q: "Em média, quantos dias por semana você consome?",
-                options: ["1-2 dias", "3-4 dias", "5-6 dias", "Todos os dias"]
-            },
-            {
-                q: "Quanto você gasta, em média, por cada dia de consumo?",
-                options: ["Até R$ 20", "R$ 20 a R$ 50", "R$ 50 a R$ 100", "Mais de R$ 100"]
-            },
-            {
-                q: "Qual emoção é o seu maior gatilho para o consumo?",
-                options: ["Ansiedade ou Estresse", "Tristeza ou Solidão", "Raiva ou Frustração", "Tédio ou Vazio"]
-            }
-            // Adicionaremos as outras 24 aqui...
+            // BLOCO FINANCEIRO
+            { id: 1, q: "Com que frequência você consome atualmente?", options: ["Diariamente", "3 a 5 vezes por semana", "Apenas finais de semana", "De forma esporádica/crises"] },
+            { id: 2, q: "Quanto você gasta em média em cada dia de uso?", options: ["Até R$ 30", "R$ 30 a R$ 100", "R$ 100 a R$ 300", "Mais de R$ 300"] },
+            { id: 3, q: "O consumo já afetou sua capacidade de pagar contas básicas?", options: ["Nunca afetou", "Afeta ocasionalmente", "Sinto um impacto constante", "Estou em crise financeira grave"] },
+            
+            // BLOCO TEMPO/PRODUTIVIDADE
+            { id: 4, q: "Quanto tempo do seu dia é roubado pelo consumo e ressaca?", options: ["1 a 2 horas", "Metade do meu dia", "Sinto que minha vida parou", "Apenas o período noturno"] },
+            { id: 5, q: "Sua produtividade no trabalho/estudos caiu nos últimos 6 meses?", options: ["Continua igual", "Caiu levemente", "Sinto que estou sendo notado", "Estou prestes a perder meu cargo"] },
+            
+            // BLOCO NEUROCIÊNCIA/EMOCIONAL
+            { id: 6, q: "Qual o sentimento gatilho mais forte para você?", options: ["Ansiedade ou agitação física", "Tristeza ou solidão profunda", "Tédio e falta de propósito", "Raiva ou frustração social"] },
+            { id: 7, q: "Você sente que 'merece' consumir após um dia difícil?", options: ["Sempre, é minha recompensa", "Frequentemente", "Raramente", "Não vejo como recompensa"] },
+            { id: 8, q: "Como você se sente 30 minutos após o consumo?", options: ["Alívio imediato", "Euforia artificial", "Culpa instantânea", "Apenas anestesiado"] },
+            { id: 9, q: "Você consome sozinho ou sempre acompanhado?", options: ["Sempre sozinho e escondido", "A maioria das vezes sozinho", "Em grupos, mas exagero", "Apenas em situações sociais"] },
+            
+            // BLOCO SOCIAL/AMBIENTE
+            { id: 10, q: "Seus amigos mais próximos são usuários?", options: ["Sim, todos eles", "A grande maioria", "Alguns, mas não os principais", "Nenhum deles"] },
+            { id: 11, q: "Existe alguém na sua família que você esconde o vício?", options: ["Sim, de todos", "Sim, de pessoas específicas", "Não, todos sabem", "Não, mas suspeitam"] },
+            { id: 12, q: "Como é o seu ambiente doméstico hoje?", options: ["Tenso e com brigas frequentes", "Solitário e silencioso", "Normal, mas me sinto um estranho", "Apoiador e tranquilo"] },
+            
+            // BLOCO FISIOLÓGICO
+            { id: 13, q: "Como está seu padrão de sono?", options: ["Insônia severa", "Só durmo se consumir", "Acordo cansado/ressaca moral", "Sono regular"] },
+            { id: 14, q: "Você sente tremores ou suor frio ao tentar parar?", options: ["Sim, de forma intensa", "Sim, levemente", "Sinto apenas agitação mental", "Nunca senti sintomas físicos"] },
+            { id: 15, q: "Sua alimentação piorou desde que o vício intensificou?", options: ["Como compulsivamente", "Perdi o apetite total", "Como apenas coisas não saudáveis", "Não houve mudança"] },
+
+            // BLOCO PSICOLÓGICO PROFUNDO
+            { id: 16, q: "Qual o seu maior medo em relação ao futuro?", options: ["Morrer sozinho", "Ficar doente e dependente", "Perder o amor da minha família", "Ver minha vida financeira sumir"] },
+            { id: 17, q: "Você já mentiu para um médico ou terapeuta sobre o uso?", options: ["Sempre omito a verdade", "Já menti algumas vezes", "Falo a verdade, mas me sinto mal", "Nunca procurei ajuda"] },
+            { id: 18, q: "Você se sente capaz de parar sozinho hoje?", options: ["Totalmente capaz", "Acho que consigo, mas falho", "Sinto que perdi o controle", "Sei que preciso de ajuda externa"] },
+            { id: 19, q: "O vício te impede de realizar um sonho específico?", options: ["Sim, paralisou meus projetos", "Dificulta muito o progresso", "Ainda não sinto esse impacto", "Não tenho planos no momento"] },
+
+            // BLOCO COMPORTAMENTAL
+            { id: 20, q: "Qual o horário mais 'perigoso' do seu dia?", options: ["Manhã cedo", "Horário do almoço", "Final da tarde (18h)", "Madrugada"] },
+            { id: 21, q: "Você costuma trocar o vício por outro (ex: comida/telas)?", options: ["Sim, sempre substituo", "Às vezes sinto essa troca", "Não percebi isso ainda", "Consumo tudo junto"] },
+            { id: 22, q: "Como você reage a críticas sobre seu consumo?", options: ["Fico com raiva e consumo mais", "Me sinto culpado e me escondo", "Ignoro e finjo que não ouvi", "Concordo, mas não mudo"] },
+            { id: 23, q: "Você já colocou a vida de outros em risco (ex: dirigir)?", options: ["Sim, várias vezes", "Aconteceu uma ou duas vezes", "Nunca, tenho esse limite", "Não tenho carro/não saio"] },
+            { id: 24, q: "Seu consumo aumentou no último ano?", options: ["Dobrou de intensidade", "Aumentou consideravelmente", "Está estável", "Diminuiu, mas não parou"] },
+            { id: 25, q: "O que acontece quando você vê uma propaganda de álcool/substância?", options: ["Sinto o gosto na boca e vou buscar", "Fico com vontade, mas luto", "Me sinto mal por ser viciado", "Não me afeta mais"] },
+            { id: 26, q: "Você sente que sua personalidade mudou?", options: ["Sou outra pessoa, mais agressiva/triste", "Sinto que estou mais apático", "Perdi o brilho, mas sou o mesmo", "Não senti mudança de caráter"] },
+            { id: 27, q: "O que você faria hoje se recebesse R$ 10 mil extras?", options: ["Gastaria parte em consumo", "Pagaria dívidas do vício", "Guardaria para o futuro", "Não sei dizer"] }
         ];
 
         let currentStep = 0;
-        let answers = [];
+        let userAnswers = [];
 
         function startQuiz() {
             document.getElementById('landing-page').classList.add('hidden');
@@ -89,11 +148,19 @@
             if (currentStep < questions.length) {
                 const item = questions[currentStep];
                 container.innerHTML = `
-                    <p class="text-sm text-indigo-500 font-bold mb-2">Pergunta ${currentStep + 1} de 27</p>
-                    <h3 class="text-2xl font-bold mb-6">${item.q}</h3>
-                    <div class="space-y-4">
-                        ${item.options.map((opt, i) => `
-                            <button onclick="nextStep('${opt}')" class="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition">
+                    <div class="mb-12">
+                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-indigo-500 h-full transition-all duration-500" style="width: ${((currentStep + 1) / questions.length) * 100}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Diagnóstico em curso</span>
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">${currentStep + 1} / ${questions.length}</span>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl md:text-4xl font-extrabold mb-10 text-white leading-tight tracking-tight">${item.q}</h3>
+                    <div class="grid gap-4">
+                        ${item.options.map((opt) => `
+                            <button onclick="saveAnswer('${opt}')" class="option-btn w-full text-left p-6 rounded-2xl bg-white/5 text-gray-400 font-medium text-lg">
                                 ${opt}
                             </button>
                         `).join('')}
@@ -104,8 +171,8 @@
             }
         }
 
-        function nextStep(answer) {
-            answers.push(answer);
+        function saveAnswer(answer) {
+            userAnswers.push(answer);
             currentStep++;
             showQuestion();
         }
@@ -113,19 +180,38 @@
         function showFinalStep() {
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
-                <h3 class="text-2xl font-bold mb-4">O seu 'Porquê' inegociável</h3>
-                <p class="text-gray-600 mb-6">Descreva com sinceridade: Por que você decidiu que hoje é o dia de parar? O que você quer recuperar?</p>
-                <textarea id="user-motive" class="w-full h-40 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none" placeholder="Ex: Quero ser um exemplo para meus filhos e recuperar minha saúde..."></textarea>
-                <button onclick="finishQuiz()" class="mt-6 w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-700">
-                    FINALIZAR E VER MEU PLANO
+                <div class="text-center mb-10">
+                    <div class="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-white mb-4 italic">Seu 'Porquê' Inegociável</h3>
+                    <p class="text-gray-400">Para a nossa IA criar seu plano, ela precisa saber: O que o vício te tirou que você mais quer de volta? (Seja brutalmente sincero).</p>
+                </div>
+                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Quero voltar a olhar meu filho nos olhos sem vergonha..."></textarea>
+                <button onclick="processFinal()" class="mt-8 w-full btn-primary text-white font-bold py-6 rounded-2xl text-xl uppercase tracking-widest shadow-2xl">
+                    Gerar Diagnóstico por IA
                 </button>
             `;
         }
 
-        function finishQuiz() {
-            const motive = document.getElementById('user-motive').value;
-            alert("Quiz Concluído! Agora o sistema enviaria os dados para a IA e abriria o pagamento da Stripe.");
-            // Aqui entra a integração com a Vercel/Gemini/Stripe que faremos a seguir.
+        function processFinal() {
+            const motive = document.getElementById('motive-text').value;
+            if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe para a IA trabalhar.");
+            
+            // Simulação de carregamento da IA
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="text-center py-20">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mx-auto mb-10"></div>
+                    <h3 class="text-2xl font-bold text-white mb-2 tracking-tighter uppercase">Analisando Padrões Neurais</h3>
+                    <p class="text-gray-500">O Status Sóbrio está calculando sua economia e estruturando seu plano de 72 horas...</p>
+                </div>
+            `;
+            
+            // Aqui entrará o redirecionamento para o pagamento da Stripe
+            setTimeout(() => {
+                alert("Diagnóstico completo! Agora o usuário seria redirecionado para o Checkout da Stripe de R$ 29,90.");
+            }, 3000);
         }
     </script>
 </body>
