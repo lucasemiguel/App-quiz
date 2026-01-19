@@ -16,7 +16,7 @@
         .option-btn { transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
         .option-btn:hover { background: rgba(79, 70, 229, 0.1); border-color: #6366f1; color: white; }
         .plan-card { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .plan-card:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
+        .plan-card:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); transform: scale(1.02); }
     </style>
 </head>
 <body class="bg-[#0a0c10] text-gray-100 min-h-screen">
@@ -37,10 +37,9 @@
             <p class="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
                 O Status Sóbrio mapeia seus gatilhos neurais e financeiros para criar o primeiro cronograma de sobriedade 100% personalizado por Inteligência Artificial.
             </p>
-            <button onclick="startQuiz()" class="btn-primary text-white font-bold py-6 px-14 rounded-2xl text-xl uppercase tracking-wider">
+            <button onclick="startQuiz()" class="btn-primary text-white font-bold py-6 px-14 rounded-2xl text-xl uppercase tracking-wider shadow-lg">
                 Iniciar Diagnóstico Gratuito
             </button>
-            <p class="mt-6 text-gray-500 text-sm italic">Tempo estimado: 6 minutos. Sigilo absoluto garantido.</p>
         </header>
 
         <section class="max-w-6xl mx-auto px-6 py-20 border-t border-gray-800/50">
@@ -59,36 +58,11 @@
                 </div>
             </div>
         </section>
-
-        <footer class="border-t border-gray-800 py-16 px-8 bg-black/20">
-            <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-12 text-sm">
-                <div class="col-span-2">
-                    <div class="text-xl font-bold text-white mb-4">STATUS SÓBRIO</div>
-                    <p class="text-gray-500 max-w-sm">A primeira plataforma brasileira que une neurociência e IA para o tratamento digital de vícios e comportamentos compulsivos.</p>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-widest">Legal</h4>
-                    <ul class="space-y-3 text-gray-500">
-                        <li><a href="#" class="hover:text-indigo-400 transition">Termos de Uso</a></li>
-                        <li><a href="#" class="hover:text-indigo-400 transition">Política de Privacidade</a></li>
-                        <li><a href="#" class="hover:text-indigo-400 transition">Política de Reembolso</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-widest">Suporte</h4>
-                    <p class="text-gray-500">suporte@statussobrio.com</p>
-                    <div class="mt-4 p-2 border border-gray-800 inline-block rounded">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" width="60" alt="Stripe">
-                    </div>
-                </div>
-            </div>
-        </footer>
     </div>
 
     <div id="quiz-section" class="hidden min-h-screen flex flex-col items-center justify-center p-6 gradient-dark">
         <div class="w-full max-w-2xl">
-            <div id="quiz-container" class="glass p-10 md:p-16 rounded-[3rem] shadow-2xl">
-                </div>
+            <div id="quiz-container" class="glass p-10 md:p-16 rounded-[3rem] shadow-2xl"></div>
         </div>
     </div>
 
@@ -141,12 +115,11 @@
                         <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                             <div class="bg-indigo-500 h-full transition-all duration-500" style="width: ${((currentStep + 1) / questions.length) * 100}%"></div>
                         </div>
-                        <div class="flex justify-between mt-4">
-                            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Diagnóstico em curso</span>
-                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">${currentStep + 1} / ${questions.length}</span>
+                        <div class="flex justify-between mt-4 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                            <span>Diagnóstico</span><span>${currentStep + 1} / 27</span>
                         </div>
                     </div>
-                    <h3 class="text-2xl md:text-4xl font-extrabold mb-10 text-white leading-tight tracking-tight">${item.q}</h3>
+                    <h3 class="text-2xl md:text-3xl font-extrabold mb-10 text-white leading-tight tracking-tight">${item.q}</h3>
                     <div class="grid gap-4">
                         ${item.options.map((opt) => `
                             <button onclick="saveAnswer('${opt}')" class="option-btn w-full text-left p-6 rounded-2xl bg-white/5 text-gray-400 font-medium text-lg">
@@ -170,13 +143,10 @@
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
                 <div class="text-center mb-10">
-                    <div class="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
                     <h3 class="text-3xl font-extrabold text-white mb-4 italic">Seu 'Porquê' Inegociável</h3>
-                    <p class="text-gray-400">Para a nossa IA criar seu plano, ela precisa saber: O que o vício te tirou que você mais quer de volta?</p>
+                    <p class="text-gray-400">O que o vício te tirou que você mais quer de volta?</p>
                 </div>
-                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Escreva aqui seu motivo real..."></textarea>
+                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Perdi o contato com meus filhos..."></textarea>
                 <button onclick="processFinal()" class="mt-8 w-full btn-primary text-white font-bold py-6 rounded-2xl text-xl uppercase tracking-widest shadow-2xl">
                     Gerar Diagnóstico por IA
                 </button>
@@ -185,39 +155,38 @@
 
         function processFinal() {
             const motive = document.getElementById('motive-text').value;
-            if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe para a IA trabalhar.");
+            if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe.");
             
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            localStorage.setItem('userMotive', motive);
+
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
                 <div class="text-center py-20">
                     <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mx-auto mb-10"></div>
-                    <h3 class="text-2xl font-bold text-white mb-2 tracking-tighter uppercase">Analisando Perfil Comportamental</h3>
-                    <p class="text-gray-500">Aguarde, o Status Sóbrio está estruturando seu plano personalizado...</p>
+                    <p class="text-gray-500">Aguarde, estruturando seu plano personalizado...</p>
                 </div>
             `;
             
-            setTimeout(() => {
-                showPaymentOptions();
-            }, 3000);
+            setTimeout(showPaymentOptions, 2500);
         }
 
         function showPaymentOptions() {
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
                 <div class="text-center mb-10">
-                    <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tighter">DIAGNÓSTICO PRONTO.</h3>
-                    <p class="text-gray-400">Escolha o plano ideal para liberar o acesso ao seu cronograma personalizado.</p>
+                    <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tighter uppercase">Diagnóstico Concluído.</h3>
+                    <p class="text-gray-400">Escolha seu plano para liberar o acesso:</p>
                 </div>
                 
                 <div class="grid gap-6">
                     <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('mensal')">
                         <div>
                             <h4 class="text-white font-bold text-lg">Plano Mensal</h4>
-                            <p class="text-gray-500 text-xs">Acesso total por 30 dias</p>
+                            <p class="text-gray-500 text-xs">Acompanhamento imediato</p>
                         </div>
                         <div class="text-right">
                             <span class="text-indigo-400 font-bold text-xl">R$ 29,90</span>
-                            <p class="text-[10px] text-gray-600 uppercase">Por mês</p>
                         </div>
                     </div>
 
@@ -225,33 +194,38 @@
                         <div class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] px-3 py-0.5 font-bold uppercase">Mais Popular</div>
                         <div>
                             <h4 class="text-white font-bold text-lg">Plano Trimestral</h4>
-                            <p class="text-gray-500 text-xs">90 dias de acompanhamento</p>
+                            <p class="text-gray-500 text-xs">90 dias de suporte</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 69,90</span>
-                            <p class="text-[10px] text-gray-600 uppercase">Pagamento Único</p>
+                            <span class="text-indigo-400 font-bold text-xl">R$ 79,90</span>
                         </div>
                     </div>
 
-                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('vitalicio')">
+                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('anual')">
                         <div>
-                            <h4 class="text-white font-bold text-lg">Acesso Vitalício</h4>
-                            <p class="text-gray-500 text-xs">Seu guia para sempre</p>
+                            <h4 class="text-white font-bold text-lg">Plano Anual</h4>
+                            <p class="text-gray-500 text-xs">Recuperação estruturada</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 149,90</span>
-                            <p class="text-[10px] text-gray-600 uppercase">Pagamento Único</p>
+                            <span class="text-indigo-400 font-bold text-xl">R$ 259,90</span>
                         </div>
                     </div>
                 </div>
-
-                <p class="text-center text-gray-600 text-[10px] mt-10 uppercase tracking-[0.2em]">Pagamentos processados com segurança via Stripe</p>
             `;
         }
 
         function redirectToStripe(plan) {
-            alert("Redirecionando para o Checkout Seguro do plano " + plan + "...");
-            // No futuro, aqui entrará: window.location.href = "seu_link_da_stripe";
+            const stripeLinks = {
+                'mensal': 'SEU_LINK_AQUI',
+                'trimestral': 'SEU_LINK_AQUI',
+                'anual': 'SEU_LINK_AQUI'
+            };
+            const target = stripeLinks[plan];
+            if(target === 'SEU_LINK_AQUI') {
+                alert("Redirecionando para o checkout seguro...");
+            } else {
+                window.location.href = target;
+            }
         }
     </script>
 </body>
