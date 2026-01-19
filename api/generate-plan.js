@@ -10,8 +10,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Chave API não configurada." });
     }
 
-    // Mudamos para a versão v1 e o modelo gemini-1.5-flash-latest que é mais estável
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Usando o modelo Pro que tem compatibilidade total com a v1beta
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const prompt = `
         Atue como um Especialista em Neuropsicologia.
@@ -42,8 +42,7 @@ export default async function handler(req, res) {
             const planText = data.candidates[0].content.parts[0].text;
             return res.status(200).json({ plan: planText });
         } else {
-            // Se o Google der erro, ele vai aparecer aqui nos Logs da Vercel
-            console.error("Resposta do Google:", data);
+            console.error("Erro detalhado do Google:", JSON.stringify(data));
             return res.status(500).json({ error: "Erro na resposta da IA", details: data });
         }
     } catch (error) {
