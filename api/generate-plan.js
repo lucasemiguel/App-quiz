@@ -1,45 +1,29 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-    const { answers, motive } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
-
-    // Usando o modelo 'gemini-pro' que é o identificador mais aceito na v1beta
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    
+    // Este link pergunta ao Google quais modelos sua chave pode usar
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `Atue como um Especialista em Neuropsicologia. 
-                        Gere um Plano de Sobriedade para quem tem este motivo: ${motive}. 
-                        Respostas do Quiz: ${JSON.stringify(answers)}. 
-                        Use tópicos e Markdown.`
-                    }]
-                }]
-            })
-        });
-
+        const response = await fetch(url);
         const data = await response.json();
 
-        // Se o erro de 404 persistir, o Log abaixo vai nos mostrar se o Google sugere outro nome
-        if (data.error) {
-            console.error("Resposta de erro do Google:", JSON.stringify(data));
-            return res.status(500).json({ error: data.error.message, code: data.error.code });
+        // Se o plano não carregar, ele vai mostrar a lista de modelos disponíveis
+        if (data.models) {
+            const listaModelos = data.models.map(m => m.name).join(", ");
+            return res.status(200).json({ 
+                plan: `### DIAGNÓSTICO DE CONEXÃO:
+                A IA está conectada! Você tem acesso aos seguintes modelos:
+                
+                ${listaModelos}
+                
+                **Instrução:** Escolha um dos nomes acima (ex: models/gemini-1.5-flash) e me mande aqui para eu ajustar o código final.` 
+            });
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            const planText = data.candidates[0].content.parts[0].text;
-            return res.status(200).json({ plan: planText });
-        }
-        
-        return res.status(500).json({ error: "Resposta inesperada da IA" });
+        return res.status(500).json({ error: "Erro ao listar modelos", details: data });
 
     } catch (err) {
-        console.error("Erro na requisição fetch:", err);
-        return res.status(500).json({ error: "Erro de conexão com o servidor." });
+        return res.status(500).json({ error: "Falha de rede" });
     }
 }
