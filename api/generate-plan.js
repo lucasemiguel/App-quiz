@@ -1,7 +1,4 @@
 export default async function handler(req, res) {
-    // Configura os headers para evitar problemas de cache
-    res.setHeader('Content-Type', 'application/json');
-
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido' });
     }
@@ -10,8 +7,11 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: "Chave da API não configurada na Vercel." });
+        return res.status(500).json({ error: "Chave API não configurada." });
     }
+
+    // Mudamos para a versão v1 e o modelo gemini-1.5-flash-latest que é mais estável
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const prompt = `
         Atue como um Especialista em Neuropsicologia.
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     `;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -38,16 +38,15 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // Verifica se a IA devolveu o texto corretamente
-        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0].content) {
             const planText = data.candidates[0].content.parts[0].text;
             return res.status(200).json({ plan: planText });
         } else {
-            console.error("Erro na resposta do Gemini:", data);
-            return res.status(500).json({ error: "A IA não conseguiu processar os dados.", details: data });
+            // Se o Google der erro, ele vai aparecer aqui nos Logs da Vercel
+            console.error("Resposta do Google:", data);
+            return res.status(500).json({ error: "Erro na resposta da IA", details: data });
         }
     } catch (error) {
-        console.error("Erro na requisição:", error);
-        return res.status(500).json({ error: "Erro na conexão com o servidor da IA." });
+        return res.status(500).json({ error: "Erro de conexão." });
     }
 }
