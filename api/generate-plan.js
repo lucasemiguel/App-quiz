@@ -1,9 +1,25 @@
 export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const { answers, motive } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
-    
-    // Vamos testar o modelo que apareceu primeiro na sua lista ontem
-    const model = "gemini-2.0-flash"; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    // Usando o modelo 1.5 Flash que possui cota gratuita liberada (gemini-1.5-flash)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const prompt = `
+        Atue como Especialista em Neuropsicologia.
+        Gere um Plano de Sobriedade Estruturado.
+        MOTIVO: "${motive}"
+        RESPOSTAS: ${JSON.stringify(answers)}
+        
+        Use títulos em Markdown (###) e divida em:
+        1. MAPEAMENTO COMPORTAMENTAL
+        2. IMPACTO DA LIBERDADE
+        3. PROTOCOLO DE 7 DIAS
+        4. ESCUDO CONTRA GATILHOS
+        5. SEU MANTRA DE FORÇA
+    `;
 
     try {
         const response = await fetch(url, {
@@ -11,33 +27,31 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    role: "user",
-                    parts: [{ text: "Oi, responda apenas 'Conectado'." }]
-                }]
+                    parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 1000
+                }
             })
         });
 
         const data = await response.json();
 
-        // Se der erro, vamos montar uma mensagem explicativa para aparecer no seu site
         if (data.error) {
-            const erroFormatado = `
-                ERRO IDENTIFICADO:
-                Código: ${data.error.code}
-                Status: ${data.error.status}
-                Mensagem: ${data.error.message}
-            `;
-            return res.status(200).json({ plan: erroFormatado });
+            // Se ainda der erro de cota no 1.5, o erro aparecerá aqui
+            console.error("Erro Google:", data.error.message);
+            return res.status(500).json({ error: data.error.message });
         }
 
-        // Se funcionar, ele vai avisar
-        if (data.candidates) {
-            return res.status(200).json({ plan: "A conexão funcionou! O Google respondeu corretamente. O problema anterior era o tamanho do prompt ou o tempo de resposta." });
+        if (data.candidates && data.candidates[0].content) {
+            const planText = data.candidates[0].content.parts[0].text;
+            return res.status(200).json({ plan: planText });
         }
 
-        return res.status(200).json({ plan: "Resposta estranha do Google: " + JSON.stringify(data) });
+        return res.status(500).json({ error: "Falha ao gerar plano." });
 
     } catch (err) {
-        return res.status(200).json({ plan: "Erro crítico de rede na Vercel: " + err.message });
+        return res.status(500).json({ error: "Erro de conexão servidor." });
     }
 }
