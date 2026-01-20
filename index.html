@@ -223,6 +223,8 @@
             const target = stripeLinks[plan];
             if(target === 'SEU_LINK_AQUI') {
                 alert("Redirecionando para o checkout seguro...");
+                // Aqui simulamos a ida para o sucesso. No real, o Stripe mandaria para cá.
+                window.location.href = 'sucesso.html'; 
             } else {
                 window.location.href = target;
             }
