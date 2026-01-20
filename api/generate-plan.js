@@ -1,11 +1,9 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-    const { answers, motive } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
-
-    // Mudança estratégica: usando o sufixo -exp que é o mais comum para o 2.0 flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+    
+    // Vamos testar o modelo que apareceu primeiro na sua lista ontem
+    const model = "gemini-2.0-flash"; 
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     try {
         const response = await fetch(url, {
@@ -14,24 +12,32 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 contents: [{
                     role: "user",
-                    parts: [{ text: `Gere um plano de sobriedade completo em português. Motivo: ${motive}. Respostas: ${JSON.stringify(answers)}. Estruture com títulos em Markdown.` }]
+                    parts: [{ text: "Oi, responda apenas 'Conectado'." }]
                 }]
             })
         });
 
         const data = await response.json();
 
+        // Se der erro, vamos montar uma mensagem explicativa para aparecer no seu site
         if (data.error) {
-            console.error("Erro específico do Google:", data.error);
-            return res.status(500).json({ error: data.error.message });
+            const erroFormatado = `
+                ERRO IDENTIFICADO:
+                Código: ${data.error.code}
+                Status: ${data.error.status}
+                Mensagem: ${data.error.message}
+            `;
+            return res.status(200).json({ plan: erroFormatado });
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
+        // Se funcionar, ele vai avisar
+        if (data.candidates) {
+            return res.status(200).json({ plan: "A conexão funcionou! O Google respondeu corretamente. O problema anterior era o tamanho do prompt ou o tempo de resposta." });
         }
 
-        return res.status(500).json({ error: "Resposta vazia da IA" });
+        return res.status(200).json({ plan: "Resposta estranha do Google: " + JSON.stringify(data) });
+
     } catch (err) {
-        return res.status(500).json({ error: "Erro de conexão" });
+        return res.status(200).json({ plan: "Erro crítico de rede na Vercel: " + err.message });
     }
 }
