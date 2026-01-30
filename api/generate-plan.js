@@ -1,11 +1,11 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Post only' });
 
-    const { answers, motive } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
+    const { answers, motive } = req.body;
 
-    // Usando o endpoint 'gemini-1.5-flash-latest' que resolve o erro 404 na versão v1beta
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // A URL mais estável disponível, sem betas ou sufixos complexos
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
     try {
         const response = await fetch(url, {
@@ -13,23 +13,29 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: `Aja como um neuropsicólogo especialista em vícios. Com base no motivo "${motive}" e nas respostas ${JSON.stringify(answers)}, gere um plano de sobriedade personalizado. Use Markdown para formatar.` }]
+                    parts: [{ 
+                        text: `Aja como um neuropsicólogo. Gere um plano de sobriedade para o motivo: "${motive}". Dados: ${JSON.stringify(answers)}. Responda em Português com Markdown.` 
+                    }]
                 }]
             })
         });
 
         const data = await response.json();
 
+        // Se der erro, ele vai cuspir o JSON INTEIRO para eu ler o que o Google quer
         if (data.error) {
-            return res.status(200).json({ plan: `ERRO TÉCNICO: ${data.error.message}` });
+            return res.status(200).json({ 
+                plan: `DETALHE TÉCNICO DO GOOGLE: ${JSON.stringify(data.error)}` 
+            });
         }
 
         if (data.candidates && data.candidates[0].content) {
             return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
         }
 
-        return res.status(500).json({ error: "Falha na geração do conteúdo." });
+        return res.status(200).json({ plan: "O Google retornou um formato inesperado. Verifique os logs." });
+
     } catch (err) {
-        return res.status(500).json({ error: "Erro de conexão com o servidor." });
+        return res.status(200).json({ plan: "Erro de conexão Vercel-Google: " + err.message });
     }
 }
