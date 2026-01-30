@@ -1,234 +1,35 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Sóbrio | Plano de Recuperação Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .gradient-dark { background: radial-gradient(circle at top, #1a202c 0%, #0a0c10 100%); }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn-primary { background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5); }
-        .hidden { display: none; }
-        .option-btn { transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .option-btn:hover { background: rgba(79, 70, 229, 0.1); border-color: #6366f1; color: white; }
-        .plan-card { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .plan-card:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); transform: scale(1.02); }
-    </style>
-</head>
-<body class="bg-[#0a0c10] text-gray-100 min-h-screen">
+export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    <div id="landing-page">
-        <nav class="flex justify-between items-center px-8 py-6 border-b border-gray-800 bg-[#0a0c10]/80 sticky top-0 z-50 backdrop-blur-md">
-            <div class="text-2xl font-extrabold tracking-tighter text-white">STATUS <span class="text-indigo-500">SÓBRIO</span></div>
-            <div class="hidden md:block text-xs text-gray-400 uppercase tracking-widest font-semibold">Tecnologia de Precisão em Sobriedade</div>
-        </nav>
+    const { answers, motive } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
 
-        <header class="max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
-            <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">
-                Análise Comportamental via IA
-            </div>
-            <h1 class="text-5xl md:text-8xl font-extrabold mb-8 tracking-tight leading-[1.1]">
-                Sua mente não é genérica. <br><span class="text-indigo-500">Seu plano também não.</span>
-            </h1>
-            <p class="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
-                O Status Sóbrio mapeia seus gatilhos neurais e financeiros para criar o primeiro cronograma de sobriedade 100% personalizado por Inteligência Artificial.
-            </p>
-            <button onclick="startQuiz()" class="btn-primary text-white font-bold py-6 px-14 rounded-2xl text-xl uppercase tracking-wider shadow-lg">
-                Iniciar Diagnóstico Gratuito
-            </button>
-        </header>
+    // Usando o endpoint 'gemini-1.5-flash-latest' que resolve o erro 404 na versão v1beta
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
-        <section class="max-w-6xl mx-auto px-6 py-20 border-t border-gray-800/50">
-            <div class="grid md:grid-cols-3 gap-10">
-                <div class="glass p-10 rounded-[2rem]">
-                    <h3 class="text-xl font-bold mb-4 text-white">Engenharia de Hábitos</h3>
-                    <p class="text-gray-400 leading-relaxed">Não usamos frases motivacionais vazias. Usamos dados sobre sua rotina para preencher lacunas de dopamina.</p>
-                </div>
-                <div class="glass p-10 rounded-[2rem] border-indigo-500/30">
-                    <h3 class="text-xl font-bold mb-4 text-white">Liberdade Financeira</h3>
-                    <p class="text-gray-400 leading-relaxed">Calcule em tempo real o capital que você está perdendo e trace um plano de reinvestimento na sua vida.</p>
-                </div>
-                <div class="glass p-10 rounded-[2rem]">
-                    <h3 class="text-xl font-bold mb-4 text-white">Plano de Ação</h3>
-                    <p class="text-gray-400 leading-relaxed">Receba um roteiro estruturado para lidar com crises e reconstruir sua rotina de forma sustentável.</p>
-                </div>
-            </div>
-        </section>
-    </div>
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: `Aja como um neuropsicólogo especialista em vícios. Com base no motivo "${motive}" e nas respostas ${JSON.stringify(answers)}, gere um plano de sobriedade personalizado. Use Markdown para formatar.` }]
+                }]
+            })
+        });
 
-    <div id="quiz-section" class="hidden min-h-screen flex flex-col items-center justify-center p-6 gradient-dark">
-        <div class="w-full max-w-2xl">
-            <div id="quiz-container" class="glass p-10 md:p-16 rounded-[3rem] shadow-2xl"></div>
-        </div>
-    </div>
+        const data = await response.json();
 
-    <script>
-        const questions = [
-            { id: 1, q: "Com que frequência você consome atualmente?", options: ["Diariamente", "3 a 5 vezes por semana", "Apenas finais de semana", "De forma esporádica/crises"] },
-            { id: 2, q: "Quanto você gasta em média em cada dia de uso?", options: ["Até R$ 30", "R$ 30 a R$ 100", "R$ 100 a R$ 300", "Mais de R$ 300"] },
-            { id: 3, q: "O consumo já afetou sua capacidade de pagar contas básicas?", options: ["Nunca afetou", "Afeta ocasionalmente", "Sinto um impacto constante", "Estou em crise financeira grave"] },
-            { id: 4, q: "Quanto tempo do seu dia é roubado pelo consumo e ressaca?", options: ["1 a 2 horas", "Metade do meu dia", "Sinto que minha vida parou", "Apenas o período noturno"] },
-            { id: 5, q: "Sua produtividade no trabalho/estudos caiu nos últimos 6 meses?", options: ["Continua igual", "Caiu levemente", "Sinto que estou sendo notado", "Estou prestes a perder meu cargo"] },
-            { id: 6, q: "Qual o sentimento gatilho mais forte para você?", options: ["Ansiedade ou agitação física", "Tristeza ou solidão profunda", "Tédio e falta de propósito", "Raiva ou frustração social"] },
-            { id: 7, q: "Você sente que 'merece' consumir após um dia difícil?", options: ["Sempre, é minha recompensa", "Frequentemente", "Raramente", "Não vejo como recompensa"] },
-            { id: 8, q: "Como você se sente 30 minutos após o consumo?", options: ["Alívio imediato", "Euforia artificial", "Culpa instantânea", "Apenas anestesiado"] },
-            { id: 9, q: "Você consome sozinho ou sempre acompanhado?", options: ["Sempre sozinho e escondido", "A maioria das vezes sozinho", "Em grupos, mas exagero", "Apenas em situações sociais"] },
-            { id: 10, q: "Seus amigos mais próximos são usuários?", options: ["Sim, todos eles", "A grande maioria", "Alguns, mas não os principais", "Nenhum deles"] },
-            { id: 11, q: "Existe alguém na sua família que você esconde o vício?", options: ["Sim, de todos", "Sim, de pessoas específicas", "Não, todos sabem", "Não, mas suspeitam"] },
-            { id: 12, q: "Como é o seu ambiente doméstico hoje?", options: ["Tenso e com brigas frequentes", "Solitário e silencioso", "Normal, mas me sinto um estranho", "Apoiador e tranquilo"] },
-            { id: 13, q: "Como está seu padrão de sono?", options: ["Insônia severa", "Só durmo se consumir", "Acordo cansado/ressaca moral", "Sono regular"] },
-            { id: 14, q: "Você sente tremores ou suor frio ao tentar parar?", options: ["Sim, de forma intensa", "Sim, levemente", "Sinto apenas agitação mental", "Nunca senti sintomas físicos"] },
-            { id: 15, q: "Sua alimentação piorou desde que o vício intensificou?", options: ["Como compulsivamente", "Perdi o apetite total", "Como apenas coisas não saudáveis", "Não houve mudança"] },
-            { id: 16, q: "Qual o seu maior medo em relação ao futuro?", options: ["Morrer sozinho", "Ficar doente e dependente", "Perder o amor da minha família", "Ver minha vida financeira sumir"] },
-            { id: 17, q: "Você já mentiu para um médico ou terapeuta sobre o uso?", options: ["Sempre omito a verdade", "Já menti algumas vezes", "Falo a verdade, mas me sinto mal", "Nunca procurei ajuda"] },
-            { id: 18, q: "Você se sente capaz de parar sozinho hoje?", options: ["Totalmente capaz", "Acho que consigo, mas falho", "Sinto que perdi o controle", "Sei que preciso de ajuda externa"] },
-            { id: 19, q: "O vício te impede de realizar um sonho específico?", options: ["Sim, paralisou meus projetos", "Dificulta muito o progresso", "Ainda não sinto esse impacto", "Não tenho planos no momento"] },
-            { id: 20, q: "Qual o horário mais 'perigoso' do seu dia?", options: ["Manhã cedo", "Horário do almoço", "Final da tarde (18h)", "Madrugada"] },
-            { id: 21, q: "Você costuma trocar o vício por outro (ex: comida/telas)?", options: ["Sim, sempre substituo", "Às vezes sinto essa troca", "Não percebi isso ainda", "Consumo tudo junto"] },
-            { id: 22, q: "Como você reage a críticas sobre seu consumo?", options: ["Fico com raiva e consumo mais", "Me sinto culpado e me escondo", "Ignoro e finjo que não ouvi", "Concordo, mas não mudo"] },
-            { id: 23, q: "Você já colocou a vida de outros em risco (ex: dirigir)?", options: ["Sim, várias vezes", "Aconteceu uma ou duas vezes", "Nunca, tenho esse limite", "Não tenho carro/não saio"] },
-            { id: 24, q: "Seu consumo aumentou no último ano?", options: ["Dobrou de intensidade", "Aumentou consideravelmente", "Está estável", "Diminuiu, mas não parou"] },
-            { id: 25, q: "O que acontece quando você vê uma propaganda de álcool/substância?", options: ["Sinto o gosto na boca e vou buscar", "Fico com vontade, mas luto", "Me sinto mal por ser viciado", "Não me afeta mais"] },
-            { id: 26, q: "Você sente que sua personalidade mudou?", options: ["Sou outra pessoa, mais agressiva/triste", "Sinto que estou mais apático", "Perdi o brilho, mas sou o mesmo", "Não senti mudança de caráter"] },
-            { id: 27, q: "O que você faria hoje se recebesse R$ 10 mil extras?", options: ["Gastaria parte em consumo", "Pagaria dívidas do vício", "Guardaria para o futuro", "Não sei dizer"] }
-        ];
-
-        let currentStep = 0;
-        let userAnswers = [];
-
-        function startQuiz() {
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('quiz-section').classList.remove('hidden');
-            showQuestion();
+        if (data.error) {
+            return res.status(200).json({ plan: `ERRO TÉCNICO: ${data.error.message}` });
         }
 
-        function showQuestion() {
-            const container = document.getElementById('quiz-container');
-            if (currentStep < questions.length) {
-                const item = questions[currentStep];
-                container.innerHTML = `
-                    <div class="mb-12">
-                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-indigo-500 h-full transition-all duration-500" style="width: ${((currentStep + 1) / questions.length) * 100}%"></div>
-                        </div>
-                        <div class="flex justify-between mt-4 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                            <span>Diagnóstico</span><span>${currentStep + 1} / 27</span>
-                        </div>
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-extrabold mb-10 text-white leading-tight tracking-tight">${item.q}</h3>
-                    <div class="grid gap-4">
-                        ${item.options.map((opt) => `
-                            <button onclick="saveAnswer('${opt}')" class="option-btn w-full text-left p-6 rounded-2xl bg-white/5 text-gray-400 font-medium text-lg">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                showFinalStep();
-            }
+        if (data.candidates && data.candidates[0].content) {
+            return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
         }
 
-        function saveAnswer(answer) {
-            userAnswers.push(answer);
-            currentStep++;
-            showQuestion();
-        }
-
-        function showFinalStep() {
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = `
-                <div class="text-center mb-10">
-                    <h3 class="text-3xl font-extrabold text-white mb-4 italic">Seu 'Porquê' Inegociável</h3>
-                    <p class="text-gray-400">O que o vício te tirou que você mais quer de volta?</p>
-                </div>
-                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Perdi o contato com meus filhos..."></textarea>
-                <button onclick="processFinal()" class="mt-8 w-full btn-primary text-white font-bold py-6 rounded-2xl text-xl uppercase tracking-widest shadow-2xl">
-                    Gerar Diagnóstico por IA
-                </button>
-            `;
-        }
-
-        function processFinal() {
-            const motive = document.getElementById('motive-text').value;
-            if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe.");
-            
-            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            localStorage.setItem('userMotive', motive);
-
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = `
-                <div class="text-center py-20">
-                    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mx-auto mb-10"></div>
-                    <p class="text-gray-500">Aguarde, estruturando seu plano personalizado...</p>
-                </div>
-            `;
-            
-            setTimeout(showPaymentOptions, 2500);
-        }
-
-        function showPaymentOptions() {
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = `
-                <div class="text-center mb-10">
-                    <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tighter uppercase">Diagnóstico Concluído.</h3>
-                    <p class="text-gray-400">Escolha seu plano para liberar o acesso:</p>
-                </div>
-                
-                <div class="grid gap-6">
-                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('mensal')">
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Mensal</h4>
-                            <p class="text-gray-500 text-xs">Acompanhamento imediato</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 29,90</span>
-                        </div>
-                    </div>
-
-                    <div class="plan-card p-6 rounded-2xl border-indigo-500 bg-indigo-500/5 flex justify-between items-center relative overflow-hidden cursor-pointer" onclick="redirectToStripe('trimestral')">
-                        <div class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] px-3 py-0.5 font-bold uppercase">Mais Popular</div>
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Trimestral</h4>
-                            <p class="text-gray-500 text-xs">90 dias de suporte</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 79,90</span>
-                        </div>
-                    </div>
-
-                    <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('anual')">
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Anual</h4>
-                            <p class="text-gray-500 text-xs">Recuperação estruturada</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 259,90</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function redirectToStripe(plan) {
-            const stripeLinks = {
-                'mensal': 'SEU_LINK_AQUI',
-                'trimestral': 'SEU_LINK_AQUI',
-                'anual': 'SEU_LINK_AQUI'
-            };
-            const target = stripeLinks[plan];
-            if(target === 'SEU_LINK_AQUI') {
-                alert("Redirecionando para o checkout seguro...");
-                // Aqui simulamos a ida para o sucesso. No real, o Stripe mandaria para cá.
-                window.location.href = 'sucesso.html'; 
-            } else {
-                window.location.href = target;
-            }
-        }
-    </script>
-</body>
-</html>
+        return res.status(500).json({ error: "Falha na geração do conteúdo." });
+    } catch (err) {
+        return res.status(500).json({ error: "Erro de conexão com o servidor." });
+    }
+}
