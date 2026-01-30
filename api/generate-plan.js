@@ -1,18 +1,20 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Post only' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const apiKey = process.env.GEMINI_API_KEY;
     const { answers, motive } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    // Mudança do endpoint para a versão estável que aceita o modelo sem erro 404
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Usando o endpoint 'gemini-1.5-flash-latest' que resolve o erro 404 na versão v1beta
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `Aja como um neuropsicólogo. Gere um plano de sobriedade detalhado para o motivo: ${motive}. Baseie-se nestas respostas: ${JSON.stringify(answers)}. Use Markdown.` }] }]
+                contents: [{
+                    parts: [{ text: `Aja como um neuropsicólogo especialista em vícios. Com base no motivo "${motive}" e nas respostas ${JSON.stringify(answers)}, gere um plano de sobriedade personalizado. Use Markdown para formatar.` }]
+                }]
             })
         });
 
@@ -22,11 +24,12 @@ export default async function handler(req, res) {
             return res.status(200).json({ plan: `ERRO TÉCNICO: ${data.error.message}` });
         }
 
-        if (data.candidates) {
+        if (data.candidates && data.candidates[0].content) {
             return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
         }
-        return res.status(500).json({ error: "Erro na resposta" });
+
+        return res.status(500).json({ error: "Falha na geração do conteúdo." });
     } catch (err) {
-        return res.status(500).json({ error: "Erro de rede" });
+        return res.status(500).json({ error: "Erro de conexão com o servidor." });
     }
 }
