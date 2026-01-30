@@ -4,8 +4,8 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     const { answers, motive } = req.body;
 
-    // A URL mais estável disponível, sem betas ou sufixos complexos
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // O endpoint que o Google está forçando em 2026 para chaves de API padrão
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     try {
         const response = await fetch(url, {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `Aja como um neuropsicólogo. Gere um plano de sobriedade para o motivo: "${motive}". Dados: ${JSON.stringify(answers)}. Responda em Português com Markdown.` 
+                        text: `Aja como um neuropsicólogo. Com base no motivo "${motive}" e nos dados ${JSON.stringify(answers)}, gere um plano de sobriedade curto e prático em Português usando Markdown.` 
                     }]
                 }]
             })
@@ -22,10 +22,10 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // Se der erro, ele vai cuspir o JSON INTEIRO para eu ler o que o Google quer
         if (data.error) {
+            // Se der erro 404 de novo, ele vai me dizer qual modelo a sua conta TEM permissão de usar
             return res.status(200).json({ 
-                plan: `DETALHE TÉCNICO DO GOOGLE: ${JSON.stringify(data.error)}` 
+                plan: `ERRO DE PERMISSÃO GOOGLE: ${data.error.message} (Status: ${data.error.status})` 
             });
         }
 
@@ -33,9 +33,9 @@ export default async function handler(req, res) {
             return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
         }
 
-        return res.status(200).json({ plan: "O Google retornou um formato inesperado. Verifique os logs." });
+        return res.status(200).json({ plan: "O Google respondeu, mas o formato foi inesperado." });
 
     } catch (err) {
-        return res.status(200).json({ plan: "Erro de conexão Vercel-Google: " + err.message });
+        return res.status(200).json({ plan: "Erro de conexão: " + err.message });
     }
 }
