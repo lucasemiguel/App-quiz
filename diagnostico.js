@@ -2,23 +2,24 @@ async function gerarDiagnosticoIA() {
     const motive = localStorage.getItem('userMotive');
     const answers = JSON.parse(localStorage.getItem('userAnswers')) || [];
     
+    // SUA CHAVE API ATUAL
     const API_KEY = "AIzaSyAz3dfb9cKYZaJzqFI5lr1MU8BF3R-qh4E"; 
     const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     const prompt = `
-        Aja como um neuropsicólogo especialista em vícios. 
-        Dados: Motivo: ${motive}, Respostas: ${answers.join(", ")}.
-        
-        Crie um plano hiper-personalizado seguindo RIGOROSAMENTE este formato:
+        Aja como um neuropsicólogo clínico. O usuário quer parar pelo motivo: "${motive}".
+        Respostas do Quiz: ${answers.join(", ")}.
+
+        Gere um plano estruturado EXATAMENTE com estas etiquetas:
 
         [ANALISE]
-        (Escreva aqui a análise técnica dos gatilhos e riscos de forma empática em HTML usando <h3> e <p>)
+        Crie uma análise técnica e empática em HTML (use <h3> para títulos e <p> para parágrafos). Fale dos gatilhos específicos das respostas.
 
         [TAREFAS]
-        (Liste 3 tarefas práticas e curtas para hoje, separadas por vírgula)
+        Liste 3 tarefas curtas, práticas e personalizadas para hoje, separadas APENAS por vírgula.
 
         [MUSICA]
-        (Recomende um tipo de frequência ou estilo musical relaxante para o perfil dele)
+        Sugira uma frequência (ex: 528Hz) ou estilo musical para o estado emocional dele.
     `;
 
     try {
@@ -33,20 +34,16 @@ async function gerarDiagnosticoIA() {
         const data = await response.json();
         
         if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const resultadoTotal = data.candidates[0].content.parts[0].text;
-            
-            // Salvamos o texto bruto para tratar no sucesso.html
-            localStorage.setItem('diagnosticoGerado', resultadoTotal);
-            
-            // Pequeno delay para garantir que o navegador salvou antes de mudar de página
+            localStorage.setItem('diagnosticoGerado', data.candidates[0].content.parts[0].text);
+            // Delay de segurança antes de mudar de página
             setTimeout(() => {
                 window.location.href = 'sucesso.html';
-            }, 500);
+            }, 600);
         } else {
             window.location.href = 'sucesso.html';
         }
     } catch (error) {
-        console.error("Erro:", error);
+        console.error("Erro na IA:", error);
         window.location.href = 'sucesso.html';
     }
 }
