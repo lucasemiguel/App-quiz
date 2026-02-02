@@ -131,6 +131,8 @@
         </div>
     </div>
 
+    <script src="diagnostico.js"></script>
+
     <script>
         const questions = [
             { id: 1, q: "Com que frequência você consome atualmente?", options: ["Diariamente", "3 a 5 vezes por semana", "Apenas finais de semana", "De forma esporádica/crises"] },
@@ -233,7 +235,8 @@
                 </div>
             `;
             
-            setTimeout(showPaymentOptions, 2500);
+            // SUBSTITUÍDO O TIMEOUT PELA CHAMADA DA IA REAL
+            gerarDiagnosticoIA();
         }
 
         function showPaymentOptions() {
