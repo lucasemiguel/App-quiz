@@ -3,55 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seu Plano de Recuperação | Status Sóbrio</title>
+    <title>Meu Plano | Status Sóbrio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        .gradient-dark { background: radial-gradient(circle at top, #1a202c 0%, #0a0c10 100%); }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        /* Estilização para o texto que vem da IA */
-        #resultado h3 { color: #818cf8; font-size: 1.5rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        #resultado ul { list-style-type: disc; margin-left: 1.5rem; color: #d1d5db; }
-        #resultado p { margin-bottom: 1rem; color: #d1d5db; line-height: 1.6; }
+        body { background: #05070a; font-family: 'Inter', sans-serif; color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; }
+        .tab-active { border-bottom: 2px solid #6366f1; color: #6366f1; }
     </style>
 </head>
-<body class="bg-[#0a0c10] text-gray-100 min-h-screen gradient-dark p-6">
+<body class="p-4 md:p-8">
 
-    <div class="max-w-3xl mx-auto">
-        <header class="text-center py-10">
-            <div class="text-2xl font-extrabold tracking-tighter text-white mb-2">STATUS <span class="text-indigo-500">SÓBRIO</span></div>
-            <h1 class="text-3xl font-bold">Seu Diagnóstico Personalizado</h1>
-            <p class="text-gray-400 mt-2">Gerado por Inteligência Artificial</p>
+    <div class="max-w-md mx-auto">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-xl font-extrabold tracking-tighter">STATUS <span class="text-indigo-500">SÓBRIO</span></h1>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold">L</div>
         </header>
 
-        <div id="resultado" class="glass p-8 md:p-12 rounded-[2.5rem] shadow-2xl min-h-[300px]">
-            <div class="flex flex-col items-center justify-center py-20" id="loading">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-                <p class="text-gray-500 italic">Carregando seu plano estratégico...</p>
+        <div class="glass-card p-6 text-center mb-6 bg-gradient-to-b from-indigo-500/10 to-transparent">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Tempo de Liberdade</p>
+            <div class="text-5xl font-black mb-1">00<span class="text-lg text-indigo-400">d</span> 00<span class="text-lg text-indigo-400">h</span></div>
+            <p class="text-[10px] text-emerald-400 font-bold">VOCÊ ESTÁ NO CAMINHO CERTO</p>
+        </div>
+
+        <div class="flex justify-between mb-6 border-b border-white/10 text-xs font-bold uppercase tracking-tighter">
+            <button onclick="switchTab('plano')" class="pb-3 tab-active" id="tab-plano">Meu Plano</button>
+            <button onclick="switchTab('tarefas')" class="pb-3 text-gray-500" id="tab-tarefas">Tarefas</button>
+            <button onclick="switchTab('suporte')" class="pb-3 text-gray-500" id="tab-suporte">Suporte AI</button>
+        </div>
+
+        <div id="content-plano" class="space-y-4">
+            <div class="glass-card p-5">
+                <h3 class="text-indigo-400 font-bold text-sm mb-3 italic underline">Análise de Gatilhos Estratégica</h3>
+                <div id="ia-analise" class="text-sm text-gray-300 leading-relaxed">Carregando sua mente...</div>
+            </div>
+            
+            <div class="glass-card p-5">
+                <h3 class="text-purple-400 font-bold text-sm mb-3">Sugerido para você (Playlist/Foco)</h3>
+                <div id="ia-musica" class="text-xs text-gray-400">Personalizando áudios de frequência...</div>
             </div>
         </div>
 
-        <div class="mt-10 text-center">
-            <button onclick="window.print()" class="text-xs text-gray-500 hover:text-white transition-all underline">
-                Salvar como PDF / Imprimir
-            </button>
+        <div id="content-tarefas" class="hidden space-y-3">
+            <h3 class="font-bold text-lg mb-4">Missões do Dia 1</h3>
+            <div id="lista-tarefas" class="space-y-2">
+                </div>
+        </div>
+
+        <div id="content-suporte" class="hidden">
+            <div class="glass-card p-5 h-64 flex flex-col justify-end">
+                <div class="bg-indigo-500/20 p-3 rounded-lg rounded-bl-none mb-4 text-xs">
+                    Olá! Estou aqui 24h para evitar recaídas. O que está sentindo agora?
+                </div>
+                <input type="text" placeholder="Fale com sua IA..." class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs outline-none focus:border-indigo-500">
+            </div>
         </div>
     </div>
 
     <script>
+        function switchTab(tab) {
+            document.getElementById('content-plano').classList.add('hidden');
+            document.getElementById('content-tarefas').classList.add('hidden');
+            document.getElementById('content-suporte').classList.add('hidden');
+            document.getElementById('tab-plano').classList.remove('tab-active');
+            document.getElementById('tab-tarefas').classList.remove('tab-active');
+            document.getElementById('tab-suporte').classList.remove('tab-active');
+
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+        }
+
         window.onload = function() {
-            const diagnostico = localStorage.getItem('diagnosticoGerado');
-            const display = document.getElementById('resultado');
-            
-            if (diagnostico) {
-                // Remove o loading e coloca o texto
-                display.innerHTML = diagnostico;
-            } else {
-                display.innerHTML = `
-                    <div class="text-center">
-                        <p class="text-red-400">Não foi possível recuperar o diagnóstico.</p>
-                        <a href="index.html" class="text-indigo-400 underline mt-4 block">Refazer Diagnóstico</a>
+            const rawData = localStorage.getItem('diagnosticoGerado');
+            if (rawData) {
+                // Aqui dividimos a resposta da IA para os campos
+                document.getElementById('ia-analise').innerHTML = rawData;
+                
+                // Simulação de injeção de tarefas personalizadas
+                const tarefas = ["Beber 500ml de água agora", "Ouvir frequência 432Hz por 5min", "Escrever 3 motivos de gratidão"];
+                document.getElementById('lista-tarefas').innerHTML = tarefas.map(t => `
+                    <div class="glass-card p-4 flex items-center gap-3">
+                        <input type="checkbox" class="w-4 h-4 accent-indigo-500">
+                        <span class="text-sm text-gray-200">${t}</span>
                     </div>
-                `;
+                `).join('');
             }
         };
     </script>
