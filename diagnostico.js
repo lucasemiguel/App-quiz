@@ -2,20 +2,23 @@ async function gerarDiagnosticoIA() {
     const motive = localStorage.getItem('userMotive');
     const answers = JSON.parse(localStorage.getItem('userAnswers')) || [];
     
-    // COLE SUA CHAVE REAL ENTRE AS ASPAS ABAIXO
     const API_KEY = "AIzaSyAz3dfb9cKYZaJzqFI5lr1MU8BF3R-qh4E"; 
-    
     const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     const prompt = `
-        Analise de forma técnica e empática:
-        Motivo de querer parar: ${motive}
-        Respostas do usuário: ${answers.join(", ")}
+        Aja como um neuropsicólogo especialista em vícios. 
+        Dados: Motivo: ${motive}, Respostas: ${answers.join(", ")}.
         
-        Crie um Plano de Recuperação com:
-        1. Análise de gatilhos.
-        2. Plano de ação para os primeiros 7 dias.
-        Use formatação HTML simples (títulos h3, listas ul).
+        Crie um plano hiper-personalizado seguindo RIGOROSAMENTE este formato:
+
+        [ANALISE]
+        (Escreva aqui a análise técnica dos gatilhos e riscos de forma empática em HTML usando <h3> e <p>)
+
+        [TAREFAS]
+        (Liste 3 tarefas práticas e curtas para hoje, separadas por vírgula)
+
+        [MUSICA]
+        (Recomende um tipo de frequência ou estilo musical relaxante para o perfil dele)
     `;
 
     try {
@@ -30,15 +33,20 @@ async function gerarDiagnosticoIA() {
         const data = await response.json();
         
         if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const resultado = data.candidates[0].content.parts[0].text;
-            localStorage.setItem('diagnosticoGerado', resultado);
-            window.location.href = 'sucesso.html';
+            const resultadoTotal = data.candidates[0].content.parts[0].text;
+            
+            // Salvamos o texto bruto para tratar no sucesso.html
+            localStorage.setItem('diagnosticoGerado', resultadoTotal);
+            
+            // Pequeno delay para garantir que o navegador salvou antes de mudar de página
+            setTimeout(() => {
+                window.location.href = 'sucesso.html';
+            }, 500);
         } else {
-            console.error("Erro na resposta:", data);
             window.location.href = 'sucesso.html';
         }
     } catch (error) {
-        console.error("Erro na chamada:", error);
+        console.error("Erro:", error);
         window.location.href = 'sucesso.html';
     }
 }
