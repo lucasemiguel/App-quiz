@@ -59,17 +59,19 @@
             }
 
             try {
-                // Chama a nossa API na Vercel
+                // Chama a API que processa a IA (Certifique-se que o caminho /api/generate-plan está correto na sua Vercel)
                 const response = await fetch('/api/generate-plan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ answers, motive })
                 });
 
+                if (!response.ok) throw new Error("Erro na conexão com a IA");
+
                 const data = await response.json();
 
                 if (data.plan) {
-                    // Substitui Markdown básico por HTML
+                    // Limpa o conteúdo e formata o Markdown básico para HTML
                     const formattedPlan = data.plan
                         .replace(/^### (.*$)/gim, '<h1>$1</h1>')
                         .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -85,9 +87,11 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('loading-area').innerHTML = `
-                    <p class="text-yellow-500 font-bold">A IA está congestionada.</p>
-                    <p class="text-gray-400 text-sm mt-2">Não conseguimos gerar seu plano agora.</p>
-                    <button onclick="window.location.reload()" class="mt-6 text-white bg-gray-800 px-6 py-2 rounded-lg">Tentar Novamente</button>
+                    <p class="text-yellow-500 font-bold">A IA está processando muitos dados.</p>
+                    <p class="text-gray-400 text-sm mt-2">Tivemos um problema ao gerar seu documento agora.</p>
+                    <button onclick="window.location.reload()" class="mt-6 text-white bg-gray-800 px-6 py-2 rounded-lg font-bold">Tentar Novamente</button>
+                    <br>
+                    <a href="index.html" class="mt-4 inline-block text-xs text-gray-500 underline">Voltar para a página inicial</a>
                 `;
             }
         };
