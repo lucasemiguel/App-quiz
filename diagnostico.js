@@ -1,49 +1,32 @@
 async function gerarDiagnosticoIA() {
     const motive = localStorage.getItem('userMotive');
     const answers = JSON.parse(localStorage.getItem('userAnswers')) || [];
-    
-    // SUA CHAVE API ATUAL
-    const API_KEY = "AIzaSyAz3dfb9cKYZaJzqFI5lr1MU8BF3R-qh4E"; 
-    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-    const prompt = `
-        Aja como um neuropsicólogo clínico. O usuário quer parar pelo motivo: "${motive}".
-        Respostas do Quiz: ${answers.join(", ")}.
-
-        Gere um plano estruturado EXATAMENTE com estas etiquetas:
-
-        [ANALISE]
-        Crie uma análise técnica e empática em HTML (use <h3> para títulos e <p> para parágrafos). Fale dos gatilhos específicos das respostas.
-
-        [TAREFAS]
-        Liste 3 tarefas curtas, práticas e personalizadas para hoje, separadas APENAS por vírgula.
-
-        [MUSICA]
-        Sugira uma frequência (ex: 528Hz) ou estilo musical para o estado emocional dele.
-    `;
 
     try {
-        const response = await fetch(URL, {
+        // Chamando a sua API na Vercel (que já tem a chave e o prompt novo)
+        // Certifique-se que o nome do arquivo na pasta api é 'generate-plan.js'
+        const response = await fetch('/api/generate-plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
+            body: JSON.stringify({ answers, motive })
         });
 
         const data = await response.json();
         
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            localStorage.setItem('diagnosticoGerado', data.candidates[0].content.parts[0].text);
-            // Delay de segurança antes de mudar de página
+        // A sua API da Vercel retorna o resultado dentro de 'plan'
+        if (data.plan) {
+            localStorage.setItem('diagnosticoGerado', data.plan);
+            
+            // Aguarda o salvamento e redireciona
             setTimeout(() => {
                 window.location.href = 'sucesso.html';
             }, 600);
         } else {
+            console.error("Resposta sem plano:", data);
             window.location.href = 'sucesso.html';
         }
     } catch (error) {
-        console.error("Erro na IA:", error);
+        console.error("Erro ao conectar com a API da Vercel:", error);
         window.location.href = 'sucesso.html';
     }
 }
