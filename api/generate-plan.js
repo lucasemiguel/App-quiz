@@ -4,7 +4,6 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     const { answers, motive } = req.body;
 
-    // Endpoint v1beta para garantir compatibilidade com gemini-1.5-flash
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     try {
@@ -14,18 +13,20 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `Aja como um neuropsicólogo clínico especialista em comportamento e vícios. 
+                        text: `Aja como um neuropsicólogo clínico especialista em vícios. 
                         Motivo do paciente: "${motive}". 
                         Dados do Quiz: ${JSON.stringify(answers)}. 
 
-                        Gere um plano de sobriedade prático e transformador em Português. 
-                        Estruture com:
-                        1. Análise de Perfil (Gatilhos e Riscos).
-                        2. Plano de Ação Imediato (Primeiras 72 horas).
-                        3. Estratégia de Médio Prazo (30 dias).
-                        4. Mensagem de reforço baseada no 'Porquê' do usuário.
-                        
-                        Use títulos ### e negritos ** para facilitar a leitura.` 
+                        Gere um plano de sobriedade estruturado EXATAMENTE com estas etiquetas para que meu sistema possa ler:
+
+                        [ANALISE]
+                        Crie uma análise técnica e empática em HTML (use <h3> para títulos e <p> para parágrafos). Fale dos gatilhos específicos das respostas.
+
+                        [TAREFAS]
+                        Liste 3 tarefas curtas, práticas e personalizadas para hoje, separadas APENAS por vírgula. Exemplo: Caminhar 10 min, Beber água, Ligar para um amigo.
+
+                        [MUSICA]
+                        Sugira uma frequência sonora (ex: 528Hz) ou estilo musical para o estado emocional dele.` 
                     }]
                 }]
             })
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
 
         if (data.error) {
             return res.status(200).json({ 
-                plan: `Nota: O sistema está sobrecarregado, mas seu perfil foi mapeado. (Erro: ${data.error.message})` 
+                plan: `[ANALISE]<h3>Atenção</h3><p>O sistema está sobrecarregado, mas seu perfil foi mapeado. (Erro: ${data.error.message})</p>[TAREFAS]Respirar fundo 3 vezes, Beber água, Revisar seu porquê[MUSICA]Frequência 432Hz` 
             });
         }
 
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ plan: data.candidates[0].content.parts[0].text });
         }
 
-        return res.status(200).json({ plan: "O plano foi gerado, mas houve uma restrição de segurança. Revise seus gatilhos com calma." });
+        return res.status(200).json({ plan: "[ANALISE]<p>Houve uma restrição de segurança. Revise seus gatilhos com calma.</p>[TAREFAS]Meditar, Beber água, Descansar[MUSICA]Silêncio relaxante" });
 
     } catch (err) {
         return res.status(200).json({ plan: "Erro de conexão ao gerar diagnóstico: " + err.message });
