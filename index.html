@@ -17,11 +17,7 @@
         .option-btn:hover { background: rgba(79, 70, 229, 0.1); border-color: #6366f1; color: white; }
         .plan-card { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
         .plan-card:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); transform: scale(1.02); }
-        
-        @keyframes fadeInZoom {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeInZoom { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .animate-feedback { animation: fadeInZoom 0.4s ease-out forwards; }
     </style>
 </head>
@@ -57,25 +53,23 @@
             <div class="grid md:grid-cols-3 gap-8 mb-20">
                 <div class="glass p-10 rounded-[2.5rem] relative group hover:bg-white/[0.05] transition-all">
                     <div class="absolute -top-4 -left-4 bg-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-xl font-serif text-white">“</div>
-                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"O plano identificou meu gatilho das 18h. A precisão técnica da IA me deu o suporte que faltava. Já são 45 dias de clareza mental."</p>
+                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"O plano identificou meu gatilho das 18h. A precisão técnica da IA me deu o suporte que faltava."</p>
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white">A</div>
                         <p class="font-bold text-white text-sm">Anônimo <span class="block text-[10px] text-gray-500 font-normal">34 anos • São Paulo</span></p>
                     </div>
                 </div>
-
                 <div class="glass p-10 rounded-[2.5rem] relative group hover:bg-white/[0.05] transition-all border-indigo-500/20">
                     <div class="absolute -top-4 -left-4 bg-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-xl font-serif text-white">“</div>
-                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"Ver o valor real que eu perdia financeiramente foi o choque necessário. O Status Sóbrio transformou números em motivação real."</p>
+                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"Ver o valor real que eu perdia financeiramente foi o choque necessário."</p>
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center font-bold text-xs text-white">R</div>
                         <p class="font-bold text-white text-sm">Relato Real <span class="block text-[10px] text-gray-500 font-normal">29 anos • Rio de Janeiro</span></p>
                     </div>
                 </div>
-
                 <div class="glass p-10 rounded-[2.5rem] relative group hover:bg-white/[0.05] transition-all">
                     <div class="absolute -top-4 -left-4 bg-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-xl font-serif text-white">“</div>
-                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"O suporte para momentos de crise é direto e prático. Não é autoajuda, é estratégia comportamental. Mudou meu jogo."</p>
+                    <p class="text-gray-400 leading-relaxed mb-6 italic text-sm">"Não é autoajuda, é estratégia comportamental. Mudou meu jogo."</p>
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white">M</div>
                         <p class="font-bold text-white text-sm">Anônimo <span class="block text-[10px] text-gray-500 font-normal">42 anos • Curitiba</span></p>
@@ -87,20 +81,27 @@
                 <div id="feedback-form" class="glass p-10 md:p-14 rounded-[3rem] border border-white/5 shadow-inner transition-all duration-300">
                     <div class="mb-8">
                         <h4 class="text-2xl font-bold text-white mb-2">Sua experiência importa</h4>
-                        <p class="text-gray-500 text-sm">Contribua para o aprimoramento do nosso algoritmo e ajude outros usuários.</p>
+                        <p class="text-gray-500 text-sm">Compartilhe sua jornada com a comunidade.</p>
                     </div>
+
+                    <div id="public-info-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden animate-feedback">
+                        <input type="text" id="user-name" placeholder="Nome completo" class="bg-[#0d1117] border border-gray-800 rounded-xl p-4 text-white outline-none focus:border-indigo-500 transition-all">
+                        <input type="number" id="user-age" placeholder="Sua idade" class="bg-[#0d1117] border border-gray-800 rounded-xl p-4 text-white outline-none focus:border-indigo-500 transition-all">
+                    </div>
+
                     <textarea id="user-review" class="w-full bg-[#0d1117] border border-gray-800 rounded-2xl p-6 text-white h-32 mb-6 outline-none focus:border-indigo-500 transition-all placeholder:text-gray-600" placeholder="Como o Status Sóbrio impactou sua rotina?"></textarea>
+                    
                     <div class="flex flex-col md:flex-row gap-6 justify-between items-center">
                         <div class="flex p-1 bg-black/40 rounded-xl border border-gray-800">
                             <label class="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-lg hover:bg-white/5 transition-all group">
-                                <input type="radio" name="privacy" value="public" checked class="hidden peer">
+                                <input type="radio" name="privacy" value="public" onchange="togglePublicFields(true)" class="hidden peer">
                                 <div class="w-4 h-4 rounded-full border border-gray-600 peer-checked:bg-indigo-500 peer-checked:border-indigo-500 transition-all"></div>
                                 <span class="text-xs text-gray-400 font-medium group-hover:text-white transition-all">Opinião Pública</span>
                             </label>
                             <label class="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-lg hover:bg-white/5 transition-all group">
-                                <input type="radio" name="privacy" value="private" class="hidden peer">
+                                <input type="radio" name="privacy" value="private" checked onchange="togglePublicFields(false)" class="hidden peer">
                                 <div class="w-4 h-4 rounded-full border border-gray-600 peer-checked:bg-indigo-500 peer-checked:border-indigo-500 transition-all"></div>
-                                <span class="text-xs text-gray-400 font-medium group-hover:text-white transition-all">Privada</span>
+                                <span class="text-xs text-gray-400 font-medium group-hover:text-white transition-all">Anônima</span>
                             </label>
                         </div>
                         <button onclick="submitReview()" class="w-full md:w-auto btn-primary text-white px-12 py-4 rounded-2xl font-bold text-sm tracking-widest uppercase">Enviar Relato</button>
@@ -108,13 +109,8 @@
                 </div>
 
                 <div id="feedback-success" class="hidden glass p-16 rounded-[3rem] text-center border border-indigo-500/30 animate-feedback">
-                    <div class="w-20 h-20 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
                     <h4 class="text-2xl font-bold text-white mb-2">Relato Enviado</h4>
-                    <p class="text-gray-400">Obrigado por colaborar com a comunidade Status Sóbrio. Sua voz fortalece nossa tecnologia.</p>
+                    <p class="text-gray-400">Sua voz fortalece nossa tecnologia.</p>
                 </div>
             </div>
         </section>
@@ -125,8 +121,6 @@
             <div id="quiz-container" class="glass p-10 md:p-16 rounded-[3rem] shadow-2xl"></div>
         </div>
     </div>
-
-    <script src="diagnostico.js"></script>
 
     <script>
         const questions = [
@@ -161,6 +155,12 @@
 
         let currentStep = 0;
         let userAnswers = [];
+
+        function togglePublicFields(show) {
+            const fields = document.getElementById('public-info-fields');
+            if(show) fields.classList.remove('hidden');
+            else fields.classList.add('hidden');
+        }
 
         function startQuiz() {
             document.getElementById('landing-page').classList.add('hidden');
@@ -208,35 +208,20 @@
                     <h3 class="text-3xl font-extrabold text-white mb-4 italic">Seu 'Porquê' Inegociável</h3>
                     <p class="text-gray-400">O que o vício te tirou que você mais quer de volta?</p>
                 </div>
-                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Perdi o contato com meus filhos..."></textarea>
+                <textarea id="motive-text" class="w-full bg-white/5 border border-gray-800 rounded-[2rem] p-8 text-white h-48 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Perdi momentos preciosos com minha família..."></textarea>
                 <button onclick="processFinal()" class="mt-8 w-full btn-primary text-white font-bold py-6 rounded-2xl text-xl uppercase tracking-widest shadow-2xl">
                     Gerar Diagnóstico por IA
                 </button>
             `;
         }
 
-        async function processFinal() {
+        function processFinal() {
             const motive = document.getElementById('motive-text').value;
             if(!motive || motive.length < 10) return alert("Por favor, descreva seu motivo com um pouco mais de detalhe.");
             
             localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
             localStorage.setItem('userMotive', motive);
-
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = `
-                <div class="text-center py-20">
-                    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mx-auto mb-10"></div>
-                    <p class="text-gray-500">Aguarde, estruturando seu plano personalizado...</p>
-                </div>
-            `;
-            
-            // Chama a função da IA. Se ela falhar ou demorar, mostra os planos.
-            try {
-                await gerarDiagnosticoIA();
-            } catch (e) {
-                console.log("IA aguardando pagamento ou erro:", e);
-                showPaymentOptions();
-            }
+            showPaymentOptions();
         }
 
         function showPaymentOptions() {
@@ -244,36 +229,21 @@
             container.innerHTML = `
                 <div class="text-center mb-10">
                     <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tighter uppercase">Diagnóstico Concluído.</h3>
-                    <p class="text-gray-400">Escolha seu plano para liberar o acesso:</p>
+                    <p class="text-gray-400">Escolha seu plano para liberar o acesso ao plano da IA:</p>
                 </div>
                 <div class="grid gap-6">
                     <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('mensal')">
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Mensal</h4>
-                            <p class="text-gray-500 text-xs">Acompanhamento imediato</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 29,90</span>
-                        </div>
+                        <div><h4 class="text-white font-bold text-lg">Plano Mensal</h4><p class="text-gray-500 text-xs">Acompanhamento imediato</p></div>
+                        <div class="text-right"><span class="text-indigo-400 font-bold text-xl">R$ 29,90</span></div>
                     </div>
                     <div class="plan-card p-6 rounded-2xl border-indigo-500 bg-indigo-500/5 flex justify-between items-center relative overflow-hidden cursor-pointer" onclick="redirectToStripe('trimestral')">
                         <div class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] px-3 py-0.5 font-bold uppercase">Mais Popular</div>
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Trimestral</h4>
-                            <p class="text-gray-500 text-xs">90 dias de suporte</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 79,90</span>
-                        </div>
+                        <div><h4 class="text-white font-bold text-lg">Plano Trimestral</h4><p class="text-gray-500 text-xs">90 dias de suporte</p></div>
+                        <div class="text-right"><span class="text-indigo-400 font-bold text-xl">R$ 79,90</span></div>
                     </div>
                     <div class="plan-card p-6 rounded-2xl flex justify-between items-center cursor-pointer group" onclick="redirectToStripe('anual')">
-                        <div>
-                            <h4 class="text-white font-bold text-lg">Plano Anual</h4>
-                            <p class="text-gray-500 text-xs">Recuperação estruturada</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-indigo-400 font-bold text-xl">R$ 259,90</span>
-                        </div>
+                        <div><h4 class="text-white font-bold text-lg">Plano Anual</h4><p class="text-gray-500 text-xs">Recuperação estruturada</p></div>
+                        <div class="text-right"><span class="text-indigo-400 font-bold text-xl">R$ 259,90</span></div>
                     </div>
                 </div>
             `;
@@ -285,10 +255,7 @@
 
         function submitReview() {
             const review = document.getElementById('user-review').value;
-            if (review.trim().length < 10) {
-                alert("Por favor, escreva um pouco mais sobre sua experiência.");
-                return;
-            }
+            if (review.trim().length < 10) return alert("Conte um pouco mais sobre sua história.");
             document.getElementById('feedback-form').classList.add('hidden');
             document.getElementById('feedback-success').classList.remove('hidden');
         }
