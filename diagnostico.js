@@ -1,10 +1,13 @@
 async function gerarDiagnosticoIA() {
     const motive = localStorage.getItem('userMotive');
     const answers = JSON.parse(localStorage.getItem('userAnswers')) || [];
+    
+    // Limpa o que tinha antes para não mostrar o plano antigo
+    localStorage.removeItem('diagnosticoGerado');
 
     try {
-        // Chamando a sua API na Vercel (que já tem a chave e o prompt novo)
-        // Certifique-se que o nome do arquivo na pasta api é 'generate-plan.js'
+        // MUITO IMPORTANTE: Verifique se o nome do arquivo na pasta api é exatamente 'generate-plan.js'
+        // Se o nome do arquivo for outro, mude o nome abaixo:
         const response = await fetch('/api/generate-plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -13,20 +16,20 @@ async function gerarDiagnosticoIA() {
 
         const data = await response.json();
         
-        // A sua API da Vercel retorna o resultado dentro de 'plan'
         if (data.plan) {
-            localStorage.setItem('diagnosticoGerado', data.plan);
+            // Remove possíveis blocos de código markdown que a IA as vezes coloca
+            const htmlLimpo = data.plan.replace(/```html|```/g, '');
             
-            // Aguarda o salvamento e redireciona
-            setTimeout(() => {
-                window.location.href = 'sucesso.html';
-            }, 600);
-        } else {
-            console.error("Resposta sem plano:", data);
+            localStorage.setItem('diagnosticoGerado', htmlLimpo);
+            
+            // Redireciona APÓS ter certeza que salvou
             window.location.href = 'sucesso.html';
+        } else {
+            console.error("A API não retornou o plano:", data);
+            alert("Erro na IA. Verifique se a API Key está correta na Vercel.");
         }
     } catch (error) {
-        console.error("Erro ao conectar com a API da Vercel:", error);
-        window.location.href = 'sucesso.html';
+        console.error("Erro na conexão:", error);
+        alert("Erro de conexão. Verifique o console (F12).");
     }
 }
