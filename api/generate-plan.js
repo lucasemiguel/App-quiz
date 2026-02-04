@@ -1,16 +1,33 @@
-// Dentro do seu handler da API
-text: `Aja como um desenvolvedor de apps de saúde mental e neuropsicólogo.
-Motivo do usuário: "${motive}".
-Dados do Quiz: ${JSON.stringify(answers)}.
+export default async function handler(req, res) {
+    const { answers, motive } = req.body;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
-Crie um Dashboard de Sobriedade EXTREMAMENTE personalizado em HTML e CSS (use Tailwind).
-Não escreva um texto. Construa uma INTERFACE de aplicativo.
+    const prompt = `
+        Aja como um analista de dados e neuropsicólogo. Analise estas respostas: ${JSON.stringify(answers)} e este motivo: "${motive}".
+        Retorne EXCLUSIVAMENTE um objeto JSON (sem markdown) com:
+        {
+            "diasSobrio": 1,
+            "dinheiroEconomizado": "valor numérico baseado no quiz",
+            "tempoGanhoDiario": "em minutos",
+            "gatilhoDominante": "título curto",
+            "gatilhoSecundario": "título curto",
+            "analiseGatilhos": "texto curto e profundo",
+            "missoes": ["missão 1", "missão 2", "missão 3"],
+            "fraseImpacto": "frase baseada no motivo ${motive}"
+        }
+    `;
 
-Regras:
-1. Se o usuário estiver em crise financeira, crie um card de calculadora de economia.
-2. Se o gatilho for solidão, crie um card de "Chat de Apoio" ou "Ligar para Alguém".
-3. Se o gatilho for às 18h, crie um alerta visual para esse horário.
-4. Inclua um 'Botão de Pânico' personalizado para a dor dele.
-5. Adicione uma frase de impacto baseada no 'Porquê' dele: "${motive}".
-
-Retorne APENAS o código HTML dos cards, sem <html> ou <body>, prontos para inserir numa <div>.`
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await response.json();
+        const textResponse = data.candidates[0].content.parts[0].text;
+        // Limpa qualquer resíduo de texto que não seja JSON
+        const jsonOnly = textResponse.substring(textResponse.indexOf('{'), textResponse.lastIndexOf('}') + 1);
+        res.status(200).json(JSON.parse(jsonOnly));
+    } catch (e) {
+        res.status(500).json({ error: "Falha na estrutura de dados" });
+    }
+}
