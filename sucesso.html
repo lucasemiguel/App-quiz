@@ -7,73 +7,71 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-deep: #080a0f; --card-bg: #11141b; }
-        body { background-color: var(--bg-deep); font-family: 'Plus Jakarta Sans', sans-serif; color: #f8fafc; }
-        .dashboard-container { opacity: 0; transform: translateY(10px); transition: all 0.5s ease-out; }
-        .dashboard-container.visible { opacity: 1; transform: translateY(0); }
-        .shimmer { background: linear-gradient(90deg, #11141b 25%, #1a1f29 50%, #11141b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        body { background: #080a0f; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .card-glass { background: #11141b; border: 1px solid #1f242d; border-radius: 24px; }
+        .accent-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-
-    <div class="max-w-2xl mx-auto">
+<body class="p-6 pb-20">
+    <div class="max-w-md mx-auto">
         <header class="flex justify-between items-center mb-10">
-            <h1 class="font-extrabold text-xl tracking-tight text-indigo-500 italic">STATUS SÓBRIO</h1>
-            <div id="status-badge" class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase border border-indigo-500/20">
-                Sincronizando IA
-            </div>
+            <h1 class="font-bold text-lg tracking-tighter italic">STATUS <span class="text-indigo-500">SÓBRIO</span></h1>
+            <div class="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-[10px] font-bold text-indigo-400 uppercase">Premium AI</div>
         </header>
 
-        <div id="app-viewport" class="dashboard-container">
-            <div id="loader-ui" class="space-y-6">
-                <div class="h-64 rounded-[2rem] shimmer"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="h-32 rounded-[2rem] shimmer"></div>
-                    <div class="h-32 rounded-[2rem] shimmer"></div>
-                </div>
+        <div class="text-center mb-10">
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Sóbrio há</h2>
+            <div class="text-6xl font-black" id="dias-count">01</div>
+            <p class="text-sm font-bold text-indigo-400 mt-2">DIA COMPLETO</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="card-glass p-5">
+                <p class="text-[10px] font-bold text-gray-500 uppercase">Economia</p>
+                <p class="text-xl font-black text-emerald-400" id="stat-money">R$ 0,00</p>
             </div>
+            <div class="card-glass p-5">
+                <p class="text-[10px] font-bold text-gray-500 uppercase">Tempo Ganho</p>
+                <p class="text-xl font-black text-purple-400" id="stat-time">0h</p>
+            </div>
+        </div>
+
+        <div class="card-glass p-6 mb-6">
+            <h3 class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-tighter">Mapeamento de Riscos</h3>
+            <div class="flex gap-2 mb-4">
+                <span class="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-lg text-[10px] font-bold text-red-400 uppercase" id="gatilho-1">Carga...</span>
+                <span class="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-lg text-[10px] font-bold text-orange-400 uppercase" id="gatilho-2">Carga...</span>
+            </div>
+            <p id="ia-analise" class="text-sm text-gray-400 leading-relaxed italic"></p>
+        </div>
+
+        <div class="space-y-3">
+            <h3 class="font-bold text-sm ml-2">Missões de Hoje</h3>
+            <div id="missoes-list" class="space-y-3">
+                </div>
         </div>
     </div>
 
     <script>
-        /**
-         * Renderiza a interface gerada pela IA com tratamento de persistência.
-         */
-        function renderDashboard() {
-            const viewport = document.getElementById('app-viewport');
-            const badge = document.getElementById('status-badge');
-            const content = localStorage.getItem('diagnosticoGerado');
+        window.onload = function() {
+            const raw = localStorage.getItem('appData');
+            if (!raw) return;
+            const data = JSON.parse(raw);
 
-            if (content && content.length > 50) {
-                viewport.innerHTML = content;
-                viewport.classList.add('visible');
-                badge.innerText = "Plano Personalizado";
-                badge.classList.replace('text-indigo-400', 'text-emerald-400');
-                return true;
-            }
-            return false;
-        }
+            document.getElementById('dias-count').innerText = data.diasSobrio || '01';
+            document.getElementById('stat-money').innerText = `R$ ${data.dinheiroEconomizado}`;
+            document.getElementById('stat-time').innerText = `${data.tempoGanhoDiario}m`;
+            document.getElementById('gatilho-1').innerText = data.gatilhoDominante;
+            document.getElementById('gatilho-2').innerText = data.gatilhoSecundario;
+            document.getElementById('ia-analise').innerText = `"${data.analiseGatilhos}"`;
 
-        // Tenta renderizar imediatamente
-        if (!renderDashboard()) {
-            // Se não encontrar, tenta novamente a cada 1 segundo (max 10 tentativas)
-            let attempts = 0;
-            const interval = setInterval(() => {
-                attempts++;
-                if (renderDashboard() || attempts > 10) {
-                    clearInterval(interval);
-                    if (attempts > 10) {
-                        document.getElementById('app-viewport').innerHTML = `
-                            <div class="text-center py-20">
-                                <p class="text-gray-500">Ocorreu um atraso na rede. Por favor, tente atualizar a página.</p>
-                                <button onclick="location.reload()" class="mt-4 px-6 py-2 bg-indigo-600 rounded-full font-bold">Atualizar Agora</button>
-                            </div>`;
-                        document.getElementById('app-viewport').classList.add('visible');
-                    }
-                }
-            }, 1000);
-        }
+            document.getElementById('missoes-list').innerHTML = data.missoes.map(m => `
+                <div class="card-glass p-4 flex items-center gap-4 border-l-4 border-indigo-500">
+                    <div class="w-5 h-5 rounded-md border-2 border-indigo-500/30"></div>
+                    <span class="text-xs font-semibold text-gray-200">${m}</span>
+                </div>
+            `).join('');
+        };
     </script>
 </body>
 </html>
