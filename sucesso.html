@@ -5,92 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Status Sóbrio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
-        .app-card { background: linear-gradient(145deg, #0f1115, #0a0a0a); border: 1px solid #1a1d23; border-radius: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .stat-value { background: linear-gradient(to bottom, #fff 30%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .mission-item { background: #0f1115; border: 1px solid #1a1d23; transition: all 0.3s ease; }
-        .mission-item:active { transform: scale(0.95); background: #161920; }
-        .glow-indigo { box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
+        body { background: #05070a; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .card-premium { background: #11141b; border: 1px solid #1f242d; border-radius: 28px; transition: all 0.3s ease; }
+        .btn-panic { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="p-6 pb-12">
+<body class="p-6 pb-24">
     <div class="max-w-md mx-auto">
-        <header class="flex justify-between items-center mb-12">
-            <h1 class="font-black text-2xl tracking-tighter italic text-white">STATUS <span class="text-indigo-500 underline decoration-indigo-500/30">SÓBRIO</span></h1>
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600 glow-indigo flex items-center justify-center font-bold text-xl">L</div>
+        
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="font-black text-xl italic tracking-tighter">STATUS <span class="text-indigo-500">SÓBRIO</span></h1>
+            <div class="bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-400">PRO PLAN</div>
         </header>
 
-        <div class="app-card p-8 text-center mb-8 relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl"></div>
-            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-6">Tempo de Vitória</h2>
-            <div class="text-8xl font-black stat-value tracking-tighter" id="dias-count">01</div>
-            <p class="text-sm font-extrabold text-indigo-400 mt-4 tracking-widest uppercase">Dia Ininterrupto</p>
+        <div class="text-center mb-10">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Jornada de Liberdade</p>
+            <div class="text-7xl font-black mb-1" id="dias">01</div>
+            <p class="text-xs font-bold text-indigo-400">DIA SOBRE CONTROLE</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="app-card p-6 border-l-4 border-emerald-500">
-                <p class="text-[10px] font-bold text-gray-500 uppercase mb-2">Dinheiro Salvo</p>
-                <p class="text-2xl font-bold text-white" id="stat-money">R$ 0,00</p>
+        <button onclick="document.getElementById('panic-modal').classList.remove('hidden')" class="btn-panic w-full py-5 rounded-3xl font-black text-sm uppercase tracking-widest mb-8 flex items-center justify-center gap-3">
+            🚨 ESTOU COM VONTADE AGORA
+        </button>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="card-premium p-5 border-b-4 border-emerald-500/50">
+                <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Economia/Mês</p>
+                <p class="text-xl font-black" id="money">R$ 0,00</p>
             </div>
-            <div class="app-card p-6 border-l-4 border-purple-500">
-                <p class="text-[10px] font-bold text-gray-500 uppercase mb-2">Horas Ganhas</p>
-                <p class="text-2xl font-bold text-white" id="stat-time">0h</p>
+            <div class="card-premium p-5 border-b-4 border-purple-500/50">
+                <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Horas Recuperadas</p>
+                <p class="text-xl font-black" id="hours">0h</p>
             </div>
         </div>
 
-        <div class="app-card p-8 mb-8">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-2 h-8 bg-indigo-500 rounded-full"></div>
-                <h3 class="text-lg font-bold">Sua Mente Hoje</h3>
-            </div>
+        <div class="card-premium p-6 mb-6">
+            <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-widest">Seu Plano de Guerra</h3>
             <div class="space-y-4">
-                <div id="gatilhos-container" class="flex flex-wrap gap-2">
-                    </div>
-                <p id="ia-analise" class="text-gray-400 text-sm leading-relaxed"></p>
+                <div class="flex gap-4">
+                    <div class="text-indigo-500 font-bold">08:00</div>
+                    <p class="text-xs text-gray-400" id="m-manha"></p>
+                </div>
+                <div class="flex gap-4 border-y border-white/5 py-3">
+                    <div class="text-indigo-500 font-bold">14:00</div>
+                    <p class="text-xs text-gray-400" id="m-tarde"></p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="text-indigo-500 font-bold">20:00</div>
+                    <p class="text-xs text-gray-400" id="m-noite"></p>
+                </div>
             </div>
         </div>
 
-        <div id="missoes-section" class="space-y-4">
-            <h3 class="text-sm font-bold text-gray-500 uppercase ml-2 tracking-widest">Missões de Guerra</h3>
-            <div id="missoes-list" class="space-y-3">
-                </div>
+        <div class="card-premium p-6 bg-gradient-to-br from-indigo-900/20 to-transparent">
+            <p class="text-[10px] font-bold text-indigo-400 uppercase mb-2">Recompensa em 30 dias</p>
+            <p class="text-sm font-semibold" id="recompensa"></p>
+        </div>
+
+    </div>
+
+    <div id="panic-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden p-8 flex items-center justify-center">
+        <div class="card-premium p-8 w-full max-w-sm text-center">
+            <h2 class="text-2xl font-black text-red-500 mb-4">PARE! RESPIRE.</h2>
+            <p class="text-sm text-gray-300 mb-6" id="panic-exercise"></p>
+            <p class="text-xs italic text-indigo-400 mb-8" id="panic-phrase"></p>
+            <button onclick="document.getElementById('panic-modal').classList.add('hidden')" class="w-full py-4 bg-white/10 rounded-2xl font-bold">Consegui, estou melhor</button>
         </div>
     </div>
 
     <script>
         window.onload = function() {
-            const raw = localStorage.getItem('appData');
-            if (!raw) {
-                document.body.innerHTML = "<div class='flex items-center justify-center h-screen text-gray-500'>Sincronizando dados com a IA...</div>";
-                setTimeout(() => location.reload(), 2000);
-                return;
-            }
-            
-            try {
-                const data = JSON.parse(raw);
-                document.getElementById('dias-count').innerText = data.diasSobrio || '01';
-                document.getElementById('stat-money').innerText = `R$ ${data.dinheiroEconomizado}`;
-                document.getElementById('stat-time').innerText = `${data.tempoGanhoDiario}h`;
-                document.getElementById('ia-analise').innerText = data.analiseGatilhos;
+            const data = JSON.parse(localStorage.getItem('appData'));
+            if (!data) return;
 
-                // Gatilhos como Tags Coloridas
-                const gatilhos = [data.gatilhoDominante, data.gatilhoSecundario];
-                document.getElementById('gatilhos-container').innerHTML = gatilhos.map(g => `
-                    <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-indigo-400">${g}</span>
-                `).join('');
-
-                // Missões com Design de Checklist
-                document.getElementById('missoes-list').innerHTML = data.missoes.map(m => `
-                    <div class="mission-item p-6 rounded-[2rem] flex items-center gap-4">
-                        <div class="w-6 h-6 rounded-lg border-2 border-indigo-500/50 flex-shrink-0"></div>
-                        <span class="text-sm font-bold text-gray-200">${m}</span>
-                    </div>
-                `).join('');
-            } catch (e) {
-                console.error("Erro ao ler dados da IA");
-            }
+            document.getElementById('dias').innerText = data.perfil.dias;
+            document.getElementById('money').innerText = `R$ ${data.perfil.economiaMensalEstimada}`;
+            document.getElementById('hours').innerText = `${data.perfil.horasRecuperadasMes}h`;
+            document.getElementById('m-manha').innerText = data.planoAcao.manha;
+            document.getElementById('m-tarde').innerText = data.planoAcao.tarde;
+            document.getElementById('m-noite').innerText = data.planoAcao.noite;
+            document.getElementById('recompensa').innerText = `Com o dinheiro economizado, você poderá: ${data.recompensa}`;
+            document.getElementById('panic-exercise').innerText = data.botaoPanico.exercicio;
+            document.getElementById('panic-phrase').innerText = data.botaoPanico.fraseEmergencia;
         };
     </script>
 </body>
