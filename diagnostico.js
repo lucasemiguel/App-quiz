@@ -9,11 +9,11 @@ async function gerarDiagnosticoIA() {
             body: JSON.stringify({ answers, motive })
         });
         const data = await response.json();
+        
         if (data) {
+            // AQUI ESTAVA O ERRO: O nome da chave precisa ser appData
             localStorage.setItem('appData', JSON.stringify(data));
             window.location.assign('sucesso.html');
         }
-    } catch (error) {
-        console.error("Erro na carga de dados", error);
-    }
+    } catch (error) { console.error(error); }
 }
