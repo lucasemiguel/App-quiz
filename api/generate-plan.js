@@ -1,48 +1,34 @@
 export default async function handler(req, res) {
     const { answers, motive } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const prompt = `
-        Aja como o melhor especialista em comportamento humano e vícios do Brasil.
-        O usuário quer parar de beber por: "${motive}". Dados do Quiz: ${JSON.stringify(answers)}.
-
-        Crie um Plano de Sobriedade de ALTO VALOR (estilo Produto Premium).
-        Retorne APENAS um JSON com esta estrutura:
+        Aja como um Neuropsicólogo Especialista em Reabilitação. 
+        Analise o motivo: "${motive}" e respostas: ${JSON.stringify(answers)}.
+        
+        Gere um JSON BRUTO (sem markdown) para um app premium:
         {
-            "perfil": {
-                "dias": 1,
-                "economiaMensalEstimada": "valor real calculado",
-                "horasRecuperadasMes": "valor real calculado",
-                "nivelDeRisco": "Baixo/Médio/Alto/Crítico"
+            "dias": 1,
+            "money": "valor real calculado",
+            "hours": "valor real calculado",
+            "perfilRisco": "Análise técnica do porquê o usuário bebe (ex: fuga emocional, hábito social)",
+            "plano": {
+                "manha": "Bloqueio de gatilho matinal",
+                "tarde": "Substituição neuroquímica",
+                "noite": "Estratégia de contenção para o horário crítico"
             },
-            "psicologia": {
-                "analiseGatilhos": "Explicação profunda de como o cérebro dele reage aos gatilhos achados",
-                "seuPorquêReforçado": "Uma frase poderosa baseada no motivo dele: ${motive}"
+            "urgencia": {
+                "tecnica": "Uma técnica de 'Urge Surfing' (técnica real de reabilitação) específica para o gatilho dele",
+                "choque": "Um lembrete brutal das consequências negativas que ele descreveu"
             },
-            "planoAcao": {
-                "manha": "Ação específica para evitar o primeiro gole",
-                "tarde": "Ação de produtividade",
-                "noite": "Ação para o horário crítico (geralmente quando bebem)"
-            },
-            "botaoPanico": {
-                "exercicio": "Um exercício de respiração ou técnica de 5 minutos para a hora da fissura",
-                "fraseEmergencia": "O que ele deve dizer a si mesmo no momento da tentação"
-            },
-            "recompensa": "O que ele poderá comprar em 30 dias com o dinheiro economizado"
-        }
-    `;
+            "recompensa": "Cálculo do que ele compra em 6 meses com essa economia"
+        }`;
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+        const response = await fetch(url, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
         const data = await response.json();
-        const textResponse = data.candidates[0].content.parts[0].text;
-        const jsonOnly = textResponse.substring(textResponse.indexOf('{'), textResponse.lastIndexOf('}') + 1);
-        res.status(200).json(JSON.parse(jsonOnly));
-    } catch (e) {
-        res.status(500).json({ error: "Erro na geração do plano premium" });
-    }
+        const text = data.candidates[0].content.parts[0].text;
+        const json = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        res.status(200).json(JSON.parse(json));
+    } catch (e) { res.status(500).json({ error: "Erro na IA" }); }
 }
