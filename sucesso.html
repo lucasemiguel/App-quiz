@@ -3,43 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu App | Status Sóbrio</title>
+    <title>Dashboard | Status Sóbrio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #05070a; font-family: 'Inter', sans-serif; color: white; }
-        .loading-shimmer { background: linear-gradient(90deg, #161a22 25%, #232933 50%, #161a22 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        :root { --bg-deep: #080a0f; --card-bg: #11141b; }
+        body { background-color: var(--bg-deep); font-family: 'Plus Jakarta Sans', sans-serif; color: #f8fafc; }
+        .dashboard-container { opacity: 0; transform: translateY(10px); transition: all 0.5s ease-out; }
+        .dashboard-container.visible { opacity: 1; transform: translateY(0); }
+        .shimmer { background: linear-gradient(90deg, #11141b 25%, #1a1f29 50%, #11141b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-md mx-auto">
-        <header class="mb-8 flex justify-between items-center">
-            <h1 class="font-black text-xl tracking-tighter italic">STATUS SÓBRIO</h1>
-            <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full font-bold">IA PERSONALIZADA</span>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="font-extrabold text-xl tracking-tight text-indigo-500 italic">STATUS SÓBRIO</h1>
+            <div id="status-badge" class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase border border-indigo-500/20">
+                Sincronizando IA
+            </div>
         </header>
 
-        <div id="app-container" class="space-y-6">
-            <div class="space-y-4" id="fallback-loader">
-                <div class="h-48 w-full rounded-3xl loading-shimmer"></div>
-                <div class="h-32 w-full rounded-3xl loading-shimmer"></div>
-                <div class="h-32 w-full rounded-3xl loading-shimmer"></div>
+        <div id="app-viewport" class="dashboard-container">
+            <div id="loader-ui" class="space-y-6">
+                <div class="h-64 rounded-[2rem] shimmer"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="h-32 rounded-[2rem] shimmer"></div>
+                    <div class="h-32 rounded-[2rem] shimmer"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        window.onload = function() {
-            const planoGerado = localStorage.getItem('diagnosticoGerado');
-            const container = document.getElementById('app-container');
-            
-            if (planoGerado) {
-                // Remove o loader e injeta a interface que a IA criou
-                container.innerHTML = planoGerado;
-            } else {
-                container.innerHTML = "<p class='text-center text-gray-500'>Gerando sua interface única... Aguarde 5 segundos e atualize.</p>";
+        /**
+         * Renderiza a interface gerada pela IA com tratamento de persistência.
+         */
+        function renderDashboard() {
+            const viewport = document.getElementById('app-viewport');
+            const badge = document.getElementById('status-badge');
+            const content = localStorage.getItem('diagnosticoGerado');
+
+            if (content && content.length > 50) {
+                viewport.innerHTML = content;
+                viewport.classList.add('visible');
+                badge.innerText = "Plano Personalizado";
+                badge.classList.replace('text-indigo-400', 'text-emerald-400');
+                return true;
             }
-        };
+            return false;
+        }
+
+        // Tenta renderizar imediatamente
+        if (!renderDashboard()) {
+            // Se não encontrar, tenta novamente a cada 1 segundo (max 10 tentativas)
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                if (renderDashboard() || attempts > 10) {
+                    clearInterval(interval);
+                    if (attempts > 10) {
+                        document.getElementById('app-viewport').innerHTML = `
+                            <div class="text-center py-20">
+                                <p class="text-gray-500">Ocorreu um atraso na rede. Por favor, tente atualizar a página.</p>
+                                <button onclick="location.reload()" class="mt-4 px-6 py-2 bg-indigo-600 rounded-full font-bold">Atualizar Agora</button>
+                            </div>`;
+                        document.getElementById('app-viewport').classList.add('visible');
+                    }
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
