@@ -5,80 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Status Sóbrio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; }
-        .hero-card { background: linear-gradient(180deg, #111 0%, #000 100%); border: 1px solid #222; border-radius: 40px; }
-        .stat-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 24px; padding: 20px; }
-        .panic-btn { background: #ff3b30; box-shadow: 0 0 30px rgba(255,59,48,0.4); border-radius: 20px; }
+        body { background: #000; font-family: 'Inter', sans-serif; color: white; }
+        .hero-gradient { background: linear-gradient(180deg, #111, #000); border-radius: 48px; border: 1px solid #222; }
+        .stat-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 28px; padding: 24px; }
+        .panic-btn { background: #ff3b30; border-radius: 24px; transition: all 0.2s; }
+        .panic-btn:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-md mx-auto space-y-8">
-        <div class="flex justify-between items-center">
-            <h1 class="font-bold text-xl tracking-tight">STATUS SÓBRIO</h1>
-            <span class="text-[10px] border border-zinc-700 px-2 py-1 rounded text-zinc-500 uppercase">Versão 1.0 (Beta)</span>
+<body class="p-6 pb-24">
+
+    <div class="max-w-md mx-auto space-y-10">
+        <header class="flex justify-between items-center">
+            <h1 class="text-2xl font-black italic tracking-tighter">STATUS <span class="text-indigo-600">SÓBRIO</span></h1>
+            <div class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold">L</div>
+        </header>
+
+        <div class="hero-gradient p-12 text-center shadow-2xl">
+            <h2 class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.4em] mb-6">Tempo de Domínio</h2>
+            <div class="text-9xl font-black tracking-tighter italic" id="dias">01</div>
+            <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest mt-6">Dia de Liberdade Total</p>
         </div>
 
-        <div class="hero-card p-10 text-center">
-            <p class="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase mb-4">Sóbrio e no Controle há</p>
-            <h2 class="text-8xl font-black italic" id="dias">0</h2>
-            <p class="text-zinc-400 text-sm mt-4 font-medium uppercase tracking-widest">Horas de Vitória</p>
-        </div>
-
-        <button onclick="document.getElementById('panic').classList.remove('hidden')" class="panic-btn w-full py-6 font-black text-sm uppercase tracking-widest">
-            INTERVENÇÃO DE EMERGÊNCIA
+        <button onclick="document.getElementById('panic-overlay').style.display='flex'" class="panic-btn w-full py-7 font-black text-sm uppercase tracking-widest shadow-lg">
+            🚨 INTERVENÇÃO DE EMERGÊNCIA
         </button>
 
         <div class="grid grid-cols-2 gap-4">
             <div class="stat-card">
-                <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Economia Direta</p>
-                <p class="text-2xl font-bold text-emerald-500" id="money">R$ 0</p>
+                <p class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Economia Acumulada</p>
+                <p class="text-2xl font-black text-emerald-500" id="money">R$ --</p>
             </div>
             <div class="stat-card">
-                <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Tempo Recuperado</p>
-                <p class="text-2xl font-bold text-indigo-500" id="hours">0h</p>
+                <p class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Vida Recuperada</p>
+                <p class="text-2xl font-black text-indigo-500" id="hours">--h</p>
             </div>
         </div>
 
         <div class="stat-card space-y-4">
-            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Análise do Perfil de Vício</h3>
-            <p id="ia-perfil" class="text-sm text-zinc-300 leading-relaxed"></p>
+            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Diagnóstico da Mente</h3>
+            <p id="ia-perfil" class="text-sm text-zinc-300 leading-relaxed italic"></p>
         </div>
 
         <div class="space-y-4">
-            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-2">Agenda de Sobriedade</h3>
-            <div id="agenda" class="space-y-3"></div>
+            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-2 text-center">Protocolo Diário</h3>
+            <div id="protocolo" class="space-y-3 text-sm"></div>
         </div>
     </div>
 
-    <div id="panic" class="fixed inset-0 bg-black/95 z-50 hidden p-8 flex items-center justify-center">
-        <div class="text-center space-y-6">
-            <h2 class="text-4xl font-black text-red-600">LEIA ISTO AGORA</h2>
-            <p id="panic-tecnica" class="text-xl font-bold text-white"></p>
-            <p id="panic-choque" class="text-zinc-400 italic"></p>
-            <button onclick="document.getElementById('panic').classList.add('hidden')" class="px-8 py-3 bg-white text-black font-bold rounded-full">ESTOU NO CONTROLE</button>
+    <div id="panic-overlay" class="fixed inset-0 bg-black z-50 hidden flex-col p-10 justify-center text-center">
+        <h2 class="text-5xl font-black text-red-600 mb-8 italic">PARE AGORA</h2>
+        <div class="space-y-8">
+            <p id="panic-tecnica" class="text-2xl font-bold leading-tight"></p>
+            <p id="panic-choque" class="text-zinc-500 text-lg"></p>
         </div>
+        <button onclick="document.getElementById('panic-overlay').style.display='none'" class="mt-16 py-5 bg-white text-black font-black rounded-3xl uppercase tracking-tighter">Retomar o Controle</button>
     </div>
 
     <script>
-        window.onload = function() {
-            const data = JSON.parse(localStorage.getItem('appData'));
-            if (!data) return;
+        function updateUI() {
+            const raw = localStorage.getItem('appData');
+            if (!raw) return;
+            const data = JSON.parse(raw);
 
             document.getElementById('dias').innerText = data.dias || '01';
             document.getElementById('money').innerText = `R$ ${data.money}`;
             document.getElementById('hours').innerText = `${data.hours}h`;
-            document.getElementById('ia-perfil').innerText = data.perfilRisco;
+            document.getElementById('ia-perfil').innerText = `"${data.perfilRisco}"`;
             
-            document.getElementById('agenda').innerHTML = `
-                <div class="stat-card flex justify-between"><span>Manhã:</span> <span class="text-zinc-400 text-sm">${data.plano.manha}</span></div>
-                <div class="stat-card flex justify-between"><span>Tarde:</span> <span class="text-zinc-400 text-sm">${data.plano.tarde}</span></div>
-                <div class="stat-card flex justify-between"><span>Noite:</span> <span class="text-zinc-400 text-sm">${data.plano.noite}</span></div>
+            document.getElementById('protocolo').innerHTML = `
+                <div class="stat-card flex justify-between items-center"><span class="font-bold text-zinc-500">MANHÃ:</span> <span>${data.plano.manha}</span></div>
+                <div class="stat-card flex justify-between items-center"><span class="font-bold text-zinc-500">TARDE:</span> <span>${data.plano.tarde}</span></div>
+                <div class="stat-card flex justify-between items-center"><span class="font-bold text-zinc-500">NOITE:</span> <span>${data.plano.noite}</span></div>
             `;
 
             document.getElementById('panic-tecnica').innerText = data.urgencia.tecnica;
             document.getElementById('panic-choque').innerText = data.urgencia.choque;
-        };
+        }
+
+        window.onload = updateUI;
+        // Tenta atualizar novamente em 2 segundos caso a rede demore
+        setTimeout(updateUI, 2000);
     </script>
 </body>
 </html>
