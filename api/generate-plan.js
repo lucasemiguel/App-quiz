@@ -3,7 +3,7 @@ async function gerarDiagnosticoIA() {
     const answers = JSON.parse(localStorage.getItem('userAnswers')) || [];
     
     // CHAVE GEMINI (Grátis e sem bloqueio automático de exposição)
-    const GEMINI_KEY = "AIzaSyAz3dfb9cKYZaJzqFI5lr1MU8BF3R-qh4E";
+    const GEMINI_KEY = "AIzaSyBFSzmP-etjvuA98Rqx57V-L5U-jK6Jdr8";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
 
     console.log("LOG: Iniciando conexão direta com Gemini...");
