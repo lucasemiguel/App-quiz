@@ -1,15 +1,14 @@
 export default async function handler(req, res) {
-    // CHAVE INJETADA DIRETAMENTE PARA ELIMINAR ERRO DE VARIÁVEL
-    const GEMINI_KEY = "AIzaSyAz3dfb9cKYZaJzqFI5lr1MU8BF3R-qh4E";
+    // Chave da OpenAI injetada conforme solicitado
+    const OPENAI_KEY = "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";
     
     const { answers, motive } = req.body;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
 
     const prompt = `Analise como um Neuropsicólogo de elite focado em vícios. 
     O usuário quer parar por este motivo: "${motive}". 
     Respostas do Quiz: ${JSON.stringify(answers)}.
 
-    Retorne APENAS um objeto JSON puro, sem markdown, sem explicações:
+    Retorne APENAS um objeto JSON puro, sem markdown, sem explicações, seguindo exatamente esta estrutura:
     {
         "dias": "01",
         "money": "valor total economizado no mês",
@@ -27,34 +26,45 @@ export default async function handler(req, res) {
     }`;
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_KEY}`
+            },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                model: "gpt-4o-mini",
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "Você é um assistente especializado em neuropsicologia que fornece diagnósticos brutais e precisos em formato JSON." 
+                    },
+                    { 
+                        role: "user", 
+                        content: prompt 
+                    }
+                ],
+                response_format: { "type": "json_object" },
+                temperature: 0.7
             })
         });
 
         const data = await response.json();
-        
-        if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-            console.error("Resposta inválida da Google AI:", data);
-            return res.status(500).json({ error: "IA não gerou texto" });
+
+        if (data.error) {
+            console.error("Erro da OpenAI:", data.error.message);
+            return res.status(500).json({ error: data.error.message });
         }
 
-        let text = data.candidates[0].content.parts[0].text;
-        
-        // Limpeza de possíveis marcas de markdown da IA
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const cleanJson = JSON.parse(jsonMatch[0]);
+        if (data.choices && data.choices[0].message.content) {
+            const cleanJson = JSON.parse(data.choices[0].message.content);
             res.status(200).json(cleanJson);
         } else {
-            res.status(500).json({ error: "JSON não encontrado na resposta" });
+            res.status(500).json({ error: "A OpenAI não retornou conteúdo válido." });
         }
 
     } catch (e) {
-        console.error("Erro na API:", e);
+        console.error("ERRO NA REQUISIÇÃO:", e);
         res.status(500).json({ error: e.message });
     }
 }
